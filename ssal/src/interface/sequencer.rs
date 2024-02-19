@@ -1,5 +1,16 @@
-use ssal_core::axum::response::IntoResponse;
+use ssal_core::{
+    axum::{extract::State, response::IntoResponse, Json},
+    tracing,
+};
+use ssal_database::Database;
 
-pub async fn register() -> impl IntoResponse {
-    "register_sequencer"
+pub struct Register {}
+
+impl Register {
+    pub async fn handler(
+        Json(payload): Json<Self>,
+        State(state): State<Database>,
+    ) -> impl IntoResponse {
+        tracing::info!("Sequencer registered");
+    }
 }

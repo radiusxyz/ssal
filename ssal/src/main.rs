@@ -3,30 +3,50 @@ use std::env;
 use ssal::interface::{rollup, sequencer};
 use ssal_core::{
     axum::{
+        self,
+        http::Method,
         routing::{get, post},
-        Router, Server,
+        Router,
     },
     error::{Error, WrapError},
-    tokio,
-    tower_http::cors::{Any, CorsLayer},
-    tracing_subscriber,
+    tokio::{self, net::TcpListener},
+    tower_http::cors::CorsLayer,
+    tracing, tracing_subscriber,
 };
+use ssal_database::Database;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     tracing_subscriber::fmt().init();
 
-    let app = Router::new()
-        .route("sequencer/register", post(sequencer::register))
-        .route("rollup/register", post(rollup::register))
-        .route("rollup/close_block", post(rollup::close_block))
-        .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any));
+    let env_variables: Vec<String> = env::args().skip(1).collect();
 
-    Server::bind(([0, 0, 0, 0], 0))
-        .serve(app.into_make_service())
+    // Initialize the database.
+    let database_path = env::current_dir()
+        .wrap("Failed to get the current directory")?
+        .join("database");
+    let database = Database::new(database_path)?;
+
+    // Initialize the listener socket.
+    let address = env_variables
+        .get(0)
+        .wrap("Provide the address for the server to bind to")?;
+    let listener = TcpListener::bind(address)
         .await
-        .wrap("Failed to start the SSAL server");
+        .wrap(format!("Failed to bind to {:?}", address))?;
 
-    // Server::bind().await.wrap?;
+    // Set handlers.
+    let app = Router::new()
+        .route("/sequencer/register", post(sequencer::Register::handler))
+        .route("/rollup/register", get(rollup::register))
+        .route("/rollup/close_block", get(rollup::close_block))
+        .layer(CorsLayer::permissive())
+        .with_state(database);
+
+    // Start the server.
+    tracing::info!("Starting the server at {:?}", address);
+    axum::serve(listener, app)
+        .await
+        .wrap("Failed to start the axum server")?;
     Ok(())
 }
