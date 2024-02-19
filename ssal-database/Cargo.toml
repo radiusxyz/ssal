@@ -1,0 +1,7 @@
+[package]
+name = "ssal-database"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ssal-core = { path = "../ssal-core" }

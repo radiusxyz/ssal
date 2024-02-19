@@ -1,7 +1,7 @@
-[package]
-name = "ssal"
-version = "0.1.0"
-edition = "2021"
-description = "Shared Sequencer Availability Layer (POC)"
-
-[dependencies]
+[workspace]
+members = [
+    "ssal",
+    "ssal-core",
+    "ssal-database",
+]
+workspace.resolver = "2"
