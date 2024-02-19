@@ -41,12 +41,12 @@ impl Database {
         V: Debug + DeserializeOwned + Serialize,
     {
         let key_vec =
-            bincode::serialize(key).wrap(format!("Failed to serialize the key {:?}", key))?;
+            bincode::serialize(key).wrap(format!("Failed to serialize the key: {:?}", key))?;
 
         let value_slice = self
             .client
             .get_pinned(key_vec)
-            .wrap(format!("Failed to get the pinned slice of {:?}", key))?
+            .wrap(format!("Failed to get the key: {:?}", key,))?
             .wrap(format!("Value returned None for the key: {:?}", key))?;
 
         let value: V = bincode::deserialize(value_slice.as_ref()).wrap(format!(
@@ -160,13 +160,13 @@ where
     pub fn commit(mut self) -> Result<(), Error> {
         if let Some(transaction) = self.transaction.take() {
             let value = bincode::serialize(&self.value)
-                .wrap(format!("Failed to serialize the value: {:?}", &self.value,))?;
+                .wrap(format!("Failed to serialize the value: {:?}", &self.value))?;
 
             transaction
                 .put(self.key_vec, value)
-                .wrap(format!("Failed to put value: {:?}", &self.value))?;
+                .wrap(format!("Failed to put the value: {:?}", &self.value))?;
             transaction.commit().wrap(format!(
-                "Failed to commit transaction for the value: {:?}",
+                "Failed to commit the transaction for the value: {:?}",
                 &self.value,
             ))?;
         }
