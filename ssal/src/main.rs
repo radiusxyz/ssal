@@ -1,13 +1,8 @@
 use std::env;
 
-use ssal::interface::{rollup, sequencer};
+use ssal::interface::{rollup::*, sequencer::*};
 use ssal_core::{
-    axum::{
-        self,
-        http::Method,
-        routing::{get, post},
-        Router,
-    },
+    axum::{self, routing::post, Router},
     error::{Error, WrapError},
     tokio::{self, net::TcpListener},
     tower_http::cors::CorsLayer,
@@ -37,9 +32,10 @@ async fn main() -> Result<(), Error> {
 
     // Set handlers.
     let app = Router::new()
-        .route("/sequencer/register", post(sequencer::Register::handler))
-        .route("/rollup/register", get(rollup::register))
-        .route("/rollup/close_block", get(rollup::close_block))
+        .route("/sequencer/register", post(RegisterSequencer::handler))
+        // .route("/rollup/register", post(RegisterRollup::handler))
+        // .route("/rollup/close-block", post(CloseBlock::handler))
+        // .route("/rollup/get-block-height", get(GetBlockHeight::handler))
         .layer(CorsLayer::permissive())
         .with_state(database);
 
