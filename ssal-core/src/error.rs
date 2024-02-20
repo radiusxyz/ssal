@@ -1,3 +1,8 @@
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
+
 pub trait WrapError {
     type Output;
 
@@ -49,6 +54,12 @@ impl std::fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+impl IntoResponse for Error {
+    fn into_response(self) -> Response {
+        (StatusCode::INTERNAL_SERVER_ERROR, self).into_response()
+    }
+}
 
 impl Error {
     pub fn none_type<C>(context: C) -> Self
