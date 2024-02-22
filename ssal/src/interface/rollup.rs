@@ -68,7 +68,7 @@ impl CloseBlock {
         if *block_height == 0 {
             block_height.increment();
             block_height.commit()?;
-            return Err(Error::from("The initial block has no leader."));
+            Err(Error::from("The initial block has no leader."))
         } else {
             // Elect the leader.
             let mut sequencer_set: Lock<SequencerSet> = state.get_mut(&Key::SequencerSet(
