@@ -4,4 +4,4 @@ members = [
     "ssal-core",
     "ssal-database",
 ]
-workspace.resolver = "2"
+resolver = "2"
