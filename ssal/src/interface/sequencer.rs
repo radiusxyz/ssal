@@ -15,7 +15,6 @@ impl RegisterSequencer {
         let block_height: Lock<BlockHeight> =
             state.get_mut(&Key::BlockHeight(payload.rollup_id.clone()))?;
         let next_block_height = block_height.clone() + 1;
-        drop(block_height);
 
         // Always register for the next block.
         let mut sequencer_set: Lock<SequencerSet> = state.get_mut(&Key::SequencerSet(
