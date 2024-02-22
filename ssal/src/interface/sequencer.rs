@@ -12,30 +12,40 @@ impl RegisterSequencer {
         State(state): State<Database>,
         Json(payload): Json<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let block_metadata: Lock<BlockMetadata> =
-            state.get_mut(&Key::BlockMetadata(payload.rollup_id.clone()))?;
+        let block_height: Lock<BlockHeight> =
+            state.get_mut(&Key::BlockHeight(payload.rollup_id.clone()))?;
+        let next_block_height = block_height.clone() + 1;
+        drop(block_height);
 
-        let mut sequencer_pool: Lock<SequencerPool> = state.get_mut(&Key::SequencerPool(
+        // Always register for the next block.
+        let mut sequencer_set: Lock<SequencerSet> = state.get_mut(&Key::SequencerSet(
             payload.rollup_id,
-            block_metadata.get_height(),
+            next_block_height.clone(),
         ))?;
-        sequencer_pool.add(payload.sequencer_id)?;
-        Ok((StatusCode::OK, ()).into_response())
+        sequencer_set.register(payload.sequencer_id)?;
+        Ok((StatusCode::OK, Json(next_block_height)).into_response())
     }
 }
 
 #[derive(Deserialize, Serialize)]
 #[serde(crate = "ssal_core::serde")]
 pub struct GetLeader {
-    leader_id: SequencerId,
+    rollup_id: RollupId,
 }
 
 impl GetLeader {
     pub async fn handler(
         State(state): State<Database>,
         Json(payload): Json<RegisterSequencer>,
-    ) -> Result<(), Error> {
-        // let mut leader: SequencerId = state.get()
-        Ok(())
+    ) -> Result<impl IntoResponse, Error> {
+        let block_height: Lock<BlockHeight> =
+            state.get_mut(&Key::BlockHeight(payload.rollup_id.clone()))?;
+        let previous_block_height = block_height.clone() - 1;
+        drop(block_height);
+
+        // Always use the previous block height.
+        let leader: SequencerId =
+            state.get(&Key::Leader(payload.rollup_id, previous_block_height))?;
+        Ok((StatusCode::OK, Json(leader)).into_response())
     }
 }

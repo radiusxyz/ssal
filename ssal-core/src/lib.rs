@@ -1,6 +1,7 @@
 pub mod error;
 pub use axum;
 pub use bincode;
+pub use rand;
 pub use rocksdb;
 pub use serde;
 pub use tokio;
