@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use rand::{self, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 
-use crate::error::{Error, WrapError};
+use crate::error::Error;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockHeight(usize);
