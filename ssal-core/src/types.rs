@@ -131,12 +131,7 @@ impl SequencerSet {
     }
 
     pub fn elect_leader(&mut self) -> Result<SequencerId, Error> {
-        let sequencer_vec: Vec<SequencerId> = self
-            .0
-            .iter()
-            .map(|sequencer_id| sequencer_id.clone())
-            .collect();
-
+        let sequencer_vec: Vec<SequencerId> = self.0.iter().cloned().collect();
         match sequencer_vec.choose(&mut rand::thread_rng()) {
             Some(leader) => Ok(leader.clone()),
             None => Err(Error::from("Failed to elect the leader.")),
