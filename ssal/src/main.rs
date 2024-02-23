@@ -2,7 +2,11 @@ use std::env;
 
 use ssal::interface::{client::*, rollup::*, sequencer::*};
 use ssal_core::{
-    axum::{self, routing::post, Router},
+    axum::{
+        self,
+        routing::{get, post},
+        Router,
+    },
     error::{Error, WrapError},
     tokio::{self, net::TcpListener},
     tower_http::cors::CorsLayer,
@@ -32,9 +36,9 @@ async fn main() -> Result<(), Error> {
 
     // Set handlers.
     let app = Router::new()
-        .route("/client/get-sequencer-set", post(GetSequencerSet::handler))
+        .route("/client/get-sequencer-set", get(GetSequencerSet::handler))
         .route("/sequencer/register", post(RegisterSequencer::handler))
-        .route("/sequencer/get-leader", post(GetLeader::handler))
+        .route("/sequencer/get-leader", get(GetLeader::handler))
         .route("/rollup/register", post(RegisterRollup::handler))
         .route("/rollup/deregister", post(DeregisterRollup::handler))
         .route("/rollup/close-block", post(CloseBlock::handler))

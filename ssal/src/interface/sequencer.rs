@@ -35,16 +35,16 @@ pub struct GetLeader {
 impl GetLeader {
     pub async fn handler(
         State(state): State<Database>,
-        Json(payload): Json<RegisterSequencer>,
+        Query(parameter): Query<Self>,
     ) -> Result<impl IntoResponse, Error> {
         let block_height: Lock<BlockHeight> =
-            state.get_mut(&Key::BlockHeight(payload.rollup_id.clone()))?;
+            state.get_mut(&Key::BlockHeight(parameter.rollup_id.clone()))?;
         let previous_block_height = block_height.clone() - 1;
         drop(block_height);
 
         // Always use the previous block height.
         let leader: SequencerId =
-            state.get(&Key::Leader(payload.rollup_id, previous_block_height))?;
+            state.get(&Key::Leader(parameter.rollup_id, previous_block_height))?;
         Ok((StatusCode::OK, Json(leader)).into_response())
     }
 }

@@ -3,7 +3,12 @@ pub mod rollup;
 pub mod sequencer;
 pub mod prelude {
     pub use ssal_core::{
-        axum::{extract::State, http::StatusCode, response::IntoResponse, Json},
+        axum::{
+            extract::{Query, State},
+            http::StatusCode,
+            response::IntoResponse,
+            Json,
+        },
         error::{Error, WrapError},
         rand::{self, seq::SliceRandom},
         serde::{Deserialize, Serialize},
