@@ -37,8 +37,8 @@ impl Database {
 
     pub fn get<K, V>(&self, key: &K) -> Result<V, Error>
     where
-        K: Debug + DeserializeOwned + Serialize,
-        V: Debug + DeserializeOwned + Serialize,
+        K: Debug + Serialize,
+        V: Debug + DeserializeOwned,
     {
         let key_vec =
             bincode::serialize(key).wrap(format!("Failed to serialize the key: {:?}", key))?;
@@ -46,7 +46,7 @@ impl Database {
         let value_slice = self
             .client
             .get_pinned(key_vec)
-            .wrap(format!("Failed to get the key: {:?}", key,))?
+            .wrap(format!("Failed to get the key: {:?}", key))?
             .wrap(format!("Value returned None for the key: {:?}", key))?;
 
         let value: V = bincode::deserialize(value_slice.as_ref()).wrap(format!(
@@ -59,7 +59,7 @@ impl Database {
 
     pub fn get_mut<K, V>(&self, key: &K) -> Result<Lock<V>, Error>
     where
-        K: Debug + DeserializeOwned + Serialize,
+        K: Debug + Serialize,
         V: Debug + DeserializeOwned + Serialize,
     {
         let key_vec =
@@ -81,8 +81,8 @@ impl Database {
 
     pub fn put<K, V>(&self, key: &K, value: &V) -> Result<(), Error>
     where
-        K: Debug + DeserializeOwned + Serialize,
-        V: Debug + DeserializeOwned + Serialize,
+        K: Debug + Serialize,
+        V: Debug + Serialize,
     {
         let key_vec =
             bincode::serialize(key).wrap(format!("Failed to serialize the key: {:?}", key))?;
@@ -104,7 +104,7 @@ impl Database {
 
     pub fn delete<K>(&self, key: &K) -> Result<(), Error>
     where
-        K: Debug + DeserializeOwned + Serialize,
+        K: Debug + Serialize,
     {
         let key_vec =
             bincode::serialize(key).wrap(format!("Failed to serialize the key: {:?}", key))?;
