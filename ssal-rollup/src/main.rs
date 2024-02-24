@@ -31,8 +31,9 @@ async fn main() -> Result<(), Error> {
     register(&ssal_url, &rollup_id).await?;
     loop {
         sleep(Duration::from_secs(5)).await;
-        tracing::info!("Closing the block");
-        close_block(&ssal_url, &rollup_id).await?;
+        if let Some(leader_id) = close_block(&ssal_url, &rollup_id).await? {
+            tracing::info!("{:?}", leader_id);
+        }
     }
 }
 
