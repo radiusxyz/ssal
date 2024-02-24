@@ -24,7 +24,7 @@ async fn main() -> Result<(), Error> {
     // Initialize the database.
     let database_path = env::current_dir()
         .wrap("Failed to get the current directory")?
-        .join("database");
+        .join("databases/ssal");
     let database = Database::new(database_path)?;
 
     // Initialize the rollup set.
