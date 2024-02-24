@@ -6,3 +6,19 @@ edition = "2021"
 [dependencies]
 ssal-core = { path = "../ssal-core" }
 ssal-database = { path = "../ssal-database" }
+
+[[bin]]
+name = "client"
+path = "src/bin/client.rs"
+
+[[bin]]
+name = "rollup"
+path = "src/bin/rollup.rs"
+
+[[bin]]
+name = "sequencer"
+path = "src/bin/sequencer.rs"
+
+[[bin]]
+name = "ssal"
+path = "src/bin/ssal.rs"
