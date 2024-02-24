@@ -28,6 +28,12 @@ impl std::cmp::PartialEq<&Self> for BlockHeight {
     }
 }
 
+impl std::fmt::Display for BlockHeight {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 impl std::ops::Add<usize> for BlockHeight {
     type Output = Self;
 
@@ -58,12 +64,6 @@ impl BlockHeight {
     pub fn value(&self) -> usize {
         self.0
     }
-}
-
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub enum BlockStatus {
-    Registration,
-    BuildingInProgress,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
@@ -119,6 +119,12 @@ impl RollupSet {
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct SequencerId(String);
 
+impl std::fmt::Display for SequencerId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 impl From<&str> for SequencerId {
     fn from(value: &str) -> Self {
         Self(value.to_string())
@@ -131,7 +137,7 @@ impl From<String> for SequencerId {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SequencerSet(HashSet<SequencerId>);
 
 impl SequencerSet {
