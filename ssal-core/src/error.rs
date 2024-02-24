@@ -49,7 +49,12 @@ impl std::fmt::Debug for Error {
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?} ({})", self.context, self.source)
+        match &self.source {
+            ErrorKind::Boxed(source) => write!(f, "{:?} ({})", self.context, source),
+            ErrorKind::PlainString => write!(f, "{:?}", self.context),
+            ErrorKind::NoneType => write!(f, "{} ({:?})", self.source, self.context),
+        }
+        // write!(f, "{:?} ({})", self.context, self.source)
     }
 }
 
