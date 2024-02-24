@@ -99,8 +99,10 @@ impl CloseBlock {
             // Elect the leader.
             let mut sequencer_set: Lock<SequencerSet> =
                 database.get_mut(&("sequencer_set", &rollup_id, &block_height))?;
+            tracing::info!("{:?}", &*sequencer_set);
 
             let leader = sequencer_set.elect_leader()?;
+            tracing::info!("{:?}", &leader);
 
             // Publish the leader.
             database.put(&("leader", &rollup_id, &block_height), &leader)?;
