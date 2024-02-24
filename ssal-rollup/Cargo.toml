@@ -1,0 +1,8 @@
+[package]
+name = "ssal-rollup"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ssal-core = { path = "../ssal-core" }
+ssal-database = { path = "../ssal-database" }
