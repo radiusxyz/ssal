@@ -69,6 +69,12 @@ pub enum BlockStatus {
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct RollupId(String);
 
+impl std::fmt::Display for RollupId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 impl From<&str> for RollupId {
     fn from(value: &str) -> Self {
         Self(value.to_string())
@@ -87,7 +93,7 @@ impl From<&String> for RollupId {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct RollupSet(HashSet<RollupId>);
 
 impl RollupSet {
