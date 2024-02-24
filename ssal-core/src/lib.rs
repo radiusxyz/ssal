@@ -5,6 +5,7 @@ pub use rand;
 pub use reqwest;
 pub use rocksdb;
 pub use serde;
+pub use serde_json;
 pub use tokio;
 pub use tower_http;
 pub use tracing;

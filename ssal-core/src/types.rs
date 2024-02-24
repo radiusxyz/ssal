@@ -81,6 +81,12 @@ impl From<String> for RollupId {
     }
 }
 
+impl From<&String> for RollupId {
+    fn from(value: &String) -> Self {
+        Self(value.to_string())
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct RollupSet(HashSet<RollupId>);
 
