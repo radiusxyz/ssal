@@ -12,17 +12,25 @@ impl RegisterSequencer {
         State(state): State<Database>,
         Json(payload): Json<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let block_height: Lock<BlockHeight> =
-            state.get_mut(&Key::BlockHeight(payload.rollup_id.clone()))?;
-        let next_block_height = block_height.clone() + 1;
+        let block_height_key = ("block_height", &payload.rollup_id);
+        let block_height: Lock<BlockHeight> = state.get_mut(&block_height_key)?;
 
-        // Always register for the next block.
-        let mut sequencer_set: Lock<SequencerSet> = state.get_mut(&Key::SequencerSet(
-            payload.rollup_id,
-            next_block_height.clone(),
-        ))?;
-        sequencer_set.register(payload.sequencer_id)?;
-        Ok((StatusCode::OK, Json(next_block_height)).into_response())
+        let sequencer_set_key = ("sequencer_set", &payload.rollup_id, &*block_height);
+        match state.get_mut::<(&str, &RollupId, &BlockHeight), SequencerSet>(&sequencer_set_key) {
+            Ok(mut sequencer_set) => {
+                sequencer_set.register(payload.sequencer_id)?;
+                Ok((StatusCode::OK, Json(&*block_height)).into_response())
+            }
+            Err(error) => match error.is_none_type() {
+                true => {
+                    let mut sequencer_set = SequencerSet::default();
+                    sequencer_set.register(payload.sequencer_id)?;
+                    state.put(&sequencer_set_key, &sequencer_set)?;
+                    Ok((StatusCode::OK, Json(&*block_height)).into_response())
+                }
+                false => Err(error),
+            },
+        }
     }
 }
 
@@ -30,6 +38,7 @@ impl RegisterSequencer {
 #[serde(crate = "ssal_core::serde")]
 pub struct GetLeader {
     rollup_id: RollupId,
+    block_height: BlockHeight,
 }
 
 impl GetLeader {
@@ -37,14 +46,8 @@ impl GetLeader {
         State(state): State<Database>,
         Query(parameter): Query<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let block_height: Lock<BlockHeight> =
-            state.get_mut(&Key::BlockHeight(parameter.rollup_id.clone()))?;
-        let previous_block_height = block_height.clone() - 1;
-        drop(block_height);
-
-        // Always use the previous block height.
-        let leader: SequencerId =
-            state.get(&Key::Leader(parameter.rollup_id, previous_block_height))?;
-        Ok((StatusCode::OK, Json(leader)).into_response())
+        let leader_id: SequencerId =
+            state.get(&("leader", &parameter.rollup_id, &parameter.block_height))?;
+        Ok((StatusCode::OK, Json(leader_id)).into_response())
     }
 }

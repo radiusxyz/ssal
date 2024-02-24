@@ -12,20 +12,17 @@ impl GetSequencerSet {
         Query(parameter): Query<Self>,
     ) -> Result<impl IntoResponse, Error> {
         let block_height: Lock<BlockHeight> =
-            state.get_mut(&Key::BlockHeight(parameter.rollup_id.clone()))?;
+            state.get_mut(&("block_height", &parameter.rollup_id))?;
+        let previous_block_height = block_height.clone() - 1;
+        drop(block_height);
 
-        match block_height.value() {
-            0 => Err(Error::from("Rollup registration in progress.")),
-            1 => Err(Error::from("Initial block cannot be processed.")),
-            _greater_than_or_equal_to_2 => {
-                let previous_block_height = block_height.clone() - 1;
-                drop(block_height);
-
+        // Always use the previous block height.
+        match previous_block_height.value() {
+            0 => Err(Error::from("Sequencer registration in progress.")),
+            _1_or_greater => {
                 // Always use the previous block height.
-                let sequencer_set: SequencerSet = state.get(&Key::SequencerSet(
-                    parameter.rollup_id,
-                    previous_block_height,
-                ))?;
+                let sequencer_set: SequencerSet =
+                    state.get(&(&parameter.rollup_id, &previous_block_height))?;
                 Ok((StatusCode::OK, Json(sequencer_set)).into_response())
             }
         }

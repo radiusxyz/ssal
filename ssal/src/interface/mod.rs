@@ -16,14 +16,4 @@ pub mod prelude {
         types::*,
     };
     pub use ssal_database::{Database, Lock};
-
-    #[derive(Debug, Deserialize, Serialize)]
-    #[serde(crate = "ssal_core::serde")]
-    pub enum Key {
-        BlockHeight(RollupId),
-        Leader(RollupId, BlockHeight),
-        RollupSet,
-        SequencerPool(RollupId, BlockHeight),
-        SequencerSet(RollupId, BlockHeight),
-    }
 }

@@ -21,7 +21,7 @@ impl RegisterRollup {
         rollup_set.register(payload.rollup_id.clone())?;
 
         // Insert initial block metadata for the rollup.
-        let initial_block = BlockHeight::from(0);
+        let initial_block = BlockHeight::from(1);
         state.put(&("block_height", &payload.rollup_id), &initial_block)?;
         rollup_set.commit()?;
         Ok((StatusCode::OK, ()).into_response())
@@ -68,45 +68,27 @@ impl CloseBlock {
         // Get the current block height.
         let mut block_height: Lock<BlockHeight> =
             state.get_mut(&("block_height", &payload.rollup_id))?;
+        block_height.increment();
+        let previous_block_height = block_height.clone() - 1;
+        block_height.commit()?;
 
+        // Always use the previous block height.
         // Elect the leader.
-        match Self::close_block(&state, block_height.clone(), &payload.rollup_id).await {
-            Ok(leader) => {
-                // Increment the block.
-                block_height.increment();
-                block_height.commit()?;
-                Ok((StatusCode::OK, Json(leader)).into_response())
-            }
-            Err(error) => {
-                // Increment the block.
-                block_height.increment();
-                block_height.commit()?;
-                Err(error)
-            }
-        }
-    }
+        let mut sequencer_set: Lock<SequencerSet> =
+            state.get_mut(&("sequencer_set", &payload.rollup_id, &previous_block_height))?;
+        let leader_id = sequencer_set.elect_leader()?;
 
-    pub async fn close_block(
-        database: &Database,
-        block_height: BlockHeight,
-        rollup_id: &RollupId,
-    ) -> Result<SequencerId, Error> {
-        // If the block height is 0, it means it is the initial block which has no
-        // previous block. At this stage, sequencers are registering for the block 1.
-        if block_height == 0 {
-            Err(Error::from("The initial block has no leader."))
-        } else {
-            // Elect the leader.
-            let mut sequencer_set: Lock<SequencerSet> =
-                database.get_mut(&("sequencer_set", &rollup_id, &block_height))?;
-            tracing::info!("{:?}", &*sequencer_set);
+        // Publish the leader.
+        state.put(
+            &("leader", &payload.rollup_id, &previous_block_height),
+            &leader_id,
+        )?;
 
-            let leader = sequencer_set.elect_leader()?;
-            tracing::info!("{:?}", &leader);
-
-            // Publish the leader.
-            database.put(&("leader", &rollup_id, &block_height), &leader)?;
-            Ok(leader)
-        }
+        tracing::info!(
+            "[CloseBlock]: Successfully elected the leader for {:?}: {:?}",
+            payload.rollup_id,
+            previous_block_height,
+        );
+        Ok((StatusCode::OK, Json(leader_id)).into_response())
     }
 }
