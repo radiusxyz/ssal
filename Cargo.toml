@@ -3,5 +3,7 @@ members = [
     "ssal",
     "ssal-core",
     "ssal-database",
+    "ssal-rollup",
+    "ssal-sequencer",
 ]
 resolver = "2"
