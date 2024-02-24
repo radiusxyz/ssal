@@ -47,7 +47,7 @@ impl Database {
             .client
             .get_pinned(key_vec)
             .wrap(format!("Failed to get the key: {:?}", key))?
-            .wrap(format!("Value returned None for the key: {:?}", key))?;
+            .wrap(format!("key: {:?}", key))?;
 
         let value: V = bincode::deserialize(value_slice.as_ref()).wrap(format!(
             "Failed to deserialize the value into type: {:?}",
@@ -69,7 +69,7 @@ impl Database {
         let value_slice = transaction
             .get_for_update(&key_vec, true)
             .wrap(format!("Failed to get a lock for the key: {:?}", key))?
-            .wrap(format!("Value returned None for the key: {:?}", key))?;
+            .wrap(format!("key: {:?}", key))?;
 
         let value: V = bincode::deserialize(value_slice.as_ref()).wrap(format!(
             "Failed to deserialize the value into type: {:?}",
