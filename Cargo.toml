@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "ssal",
+    "ssal-client",
     "ssal-core",
     "ssal-database",
     "ssal-rollup",
