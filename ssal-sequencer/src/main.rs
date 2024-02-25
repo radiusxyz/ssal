@@ -1,7 +1,11 @@
 use std::env;
 
 use ssal_core::{
-    axum::{self, routing::post, Router},
+    axum::{
+        self,
+        routing::{get, post},
+        Router,
+    },
     error::{Error, WrapError},
     reqwest::Url,
     tokio::{self, net::TcpListener},
@@ -60,6 +64,7 @@ async fn main() -> Result<(), Error> {
     // Set handlers
     let app = Router::new()
         .route("/common/send-transaction", post(SendTransaction::handler))
+        .route("/rollup/block", get(GetBlock::handler))
         .layer(CorsLayer::permissive())
         .with_state(database);
 

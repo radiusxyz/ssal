@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{any, collections::HashMap, str::FromStr};
 
 use ssal_core::{
     error::{Error, WrapError},
@@ -27,13 +27,10 @@ pub async fn register(
         .wrap("[RegisterSequencer]: Failed to send a request")?;
 
     if response.status() == StatusCode::OK {
-        let block_height: BlockHeight = response
-            .text()
-            .await
-            .wrap("[RegisterSequencer]: Failed to parse the response into String")?
-            .parse::<usize>()
-            .wrap("[RegisterSequencer]: Failed to parse BlockHeight String into usize")?
-            .into();
+        let block_height = response.json::<BlockHeight>().await.wrap(format!(
+            "[RegisterSequencer]: Failed to parse the response into type: {}",
+            any::type_name::<BlockHeight>(),
+        ))?;
         Ok(Some(block_height))
     } else {
         Ok(None)
@@ -62,13 +59,48 @@ pub async fn get_leader(
         .wrap("[GetLeader]: Failed to send a request")?;
 
     if response.status() == StatusCode::OK {
-        let leader_id: SequencerId = response
-            .text()
-            .await
-            .wrap("[GetLeader]: Failed to parse the response into String")?
-            .into();
+        let leader_id = response.json::<SequencerId>().await.wrap(format!(
+            "[GetLeader]: Failed to parse the response into type: {}",
+            any::type_name::<SequencerId>(),
+        ))?;
         Ok(Some(leader_id))
     } else {
         Ok(None)
+    }
+}
+
+pub async fn forward_transaction(
+    leader_id: SequencerId,
+    rollup_id: RollupId,
+    raw_tx: RawTransaction,
+) -> Result<OrderCommitment, Error> {
+    let url = Url::from_str(leader_id.as_ref())
+        .wrap("[SendTransaction]: Failed to parse into URL (base)")?
+        .join("/common/send-transaction")
+        .wrap("[SendTransaction]: Failed to parse into URL (path)")?;
+
+    let mut payload: HashMap<&'static str, String> = HashMap::new();
+    payload.insert("rollup_id", rollup_id.to_string());
+    payload.insert("raw_tx", raw_tx.to_string());
+
+    let response = Client::new()
+        .post(url)
+        .json(&payload)
+        .send()
+        .await
+        .wrap("[SendTransaction]: Failed to send a request")?;
+
+    if response.status() == StatusCode::OK {
+        let order_commitment = response.json::<OrderCommitment>().await.wrap(format!(
+            "[SendTransaction]: Failed to parse the response into type: {}",
+            any::type_name::<OrderCommitment>(),
+        ))?;
+        Ok(order_commitment)
+    } else {
+        let error = response
+            .text()
+            .await
+            .wrap("[SendTransaction]: Failed to parse the response into String")?;
+        Err(Error::from(error))
     }
 }

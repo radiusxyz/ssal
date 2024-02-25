@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env};
+use std::{any, collections::HashMap, env};
 
 use ssal_core::{
     error::{Error, WrapError},
@@ -88,11 +88,10 @@ async fn close_block(
 
     match response.error_for_status_ref() {
         Ok(_) => {
-            let leader_id: SequencerId = response
-                .text()
-                .await
-                .wrap("[CloseBlock]: Failed to parse the response into String")?
-                .into();
+            let leader_id = response.json::<SequencerId>().await.wrap(format!(
+                "[CloseBlock]: Failed to parse the response into type: {}",
+                any::type_name::<SequencerId>(),
+            ))?;
             Ok(Some(leader_id))
         }
         Err(_) => {

@@ -11,6 +11,7 @@ impl GetBlock {
         State(state): State<Database>,
         Json(payload): Json<Self>,
     ) -> Result<impl IntoResponse, Error> {
+        let block: Block = state.get(&"block")?;
         Ok((StatusCode::OK, Json(())))
     }
 }
