@@ -26,7 +26,7 @@ impl GetSequencerSet {
                     &parameter.rollup_id,
                     &previous_block_height,
                 ))?;
-                Ok((StatusCode::OK, Json(sequencer_set)).into_response())
+                Ok((StatusCode::OK, Json(sequencer_set)))
             }
         }
     }

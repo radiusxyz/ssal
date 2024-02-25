@@ -24,7 +24,7 @@ impl RegisterRollup {
         let initial_block = BlockHeight::from(1);
         state.put(&("block_height", &payload.rollup_id), &initial_block)?;
         rollup_set.commit()?;
-        Ok((StatusCode::OK, ()).into_response())
+        Ok((StatusCode::OK, ()))
     }
 }
 
@@ -48,7 +48,7 @@ impl DeregisterRollup {
         rollup_set.commit()?;
 
         tracing::info!("[DeregisterRollup]: {:?}", payload.rollup_id);
-        Ok((StatusCode::OK, ()).into_response())
+        Ok((StatusCode::OK, ()))
     }
 }
 
@@ -89,6 +89,6 @@ impl CloseBlock {
             payload.rollup_id,
             previous_block_height,
         );
-        Ok((StatusCode::OK, Json(leader_id)).into_response())
+        Ok((StatusCode::OK, Json(leader_id)))
     }
 }

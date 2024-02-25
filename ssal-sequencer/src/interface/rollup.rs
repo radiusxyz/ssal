@@ -11,6 +11,6 @@ impl GetBlock {
         State(state): State<Database>,
         Json(payload): Json<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        Ok((StatusCode::OK, Json(())).into_response())
+        Ok((StatusCode::OK, Json(())))
     }
 }

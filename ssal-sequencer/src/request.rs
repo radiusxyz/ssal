@@ -34,9 +34,9 @@ pub async fn register(
             .parse::<usize>()
             .wrap("[RegisterSequencer]: Failed to parse BlockHeight String into usize")?
             .into();
-        return Ok(Some(block_height));
+        Ok(Some(block_height))
     } else {
-        return Ok(None);
+        Ok(None)
     }
 }
 
@@ -67,8 +67,8 @@ pub async fn get_leader(
             .await
             .wrap("[GetLeader]: Failed to parse the response into String")?
             .into();
-        return Ok(Some(leader_id));
+        Ok(Some(leader_id))
     } else {
-        return Ok(None);
+        Ok(None)
     }
 }
