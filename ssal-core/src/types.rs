@@ -125,6 +125,12 @@ impl std::fmt::Display for SequencerId {
     }
 }
 
+impl AsRef<str> for SequencerId {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
 impl From<&str> for SequencerId {
     fn from(value: &str) -> Self {
         Self(value.to_string())
@@ -134,6 +140,12 @@ impl From<&str> for SequencerId {
 impl From<String> for SequencerId {
     fn from(value: String) -> Self {
         Self(value)
+    }
+}
+
+impl From<&String> for SequencerId {
+    fn from(value: &String) -> Self {
+        Self(value.to_string())
     }
 }
 
@@ -156,3 +168,155 @@ impl SequencerSet {
         }
     }
 }
+
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq, Deserialize, Serialize)]
+pub struct RawTransaction(String);
+
+impl std::fmt::Display for RawTransaction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<&str> for RawTransaction {
+    fn from(value: &str) -> Self {
+        Self(value.to_string())
+    }
+}
+
+impl From<String> for RawTransaction {
+    fn from(value: String) -> Self {
+        Self(value)
+    }
+}
+
+impl From<&String> for RawTransaction {
+    fn from(value: &String) -> Self {
+        Self(value.to_string())
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct OrderCommitment {
+    block_height: BlockHeight,
+    tx_order: TransactionOrder,
+}
+
+impl OrderCommitment {
+    pub fn new(block_height: BlockHeight, tx_order: TransactionOrder) -> Self {
+        Self {
+            block_height,
+            tx_order,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq, Deserialize, Serialize)]
+pub struct TransactionOrder(usize);
+
+impl std::fmt::Display for TransactionOrder {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<usize> for TransactionOrder {
+    fn from(value: usize) -> Self {
+        Self(value)
+    }
+}
+
+impl TransactionOrder {
+    pub fn value(&self) -> usize {
+        self.0
+    }
+
+    pub fn increment(&mut self) {
+        self.0 += 1;
+    }
+
+    pub fn iter(&self) -> TxOrderIterator {
+        TxOrderIterator {
+            tx_order: self,
+            index: 0,
+        }
+    }
+}
+
+pub struct TxOrderIterator<'a> {
+    tx_order: &'a TransactionOrder,
+    index: usize,
+}
+
+impl<'a> Iterator for TxOrderIterator<'a> {
+    type Item = TransactionOrder;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.tx_order.value() {
+            let tx_order = TransactionOrder::from(self.index);
+            self.index += 1;
+            Some(tx_order)
+        } else {
+            None
+        }
+    }
+}
+
+#[test]
+fn test_iter() {
+    let tx_order = TransactionOrder::from(100);
+    for i in tx_order.iter() {
+        dbg!(i);
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct BlockMetadata {
+    block_height: BlockHeight,
+    is_leader: bool,
+    leader_id: SequencerId,
+    tx_order: TransactionOrder,
+}
+
+impl BlockMetadata {
+    pub fn new(block_height: BlockHeight, is_leader: bool, leader_id: SequencerId) -> Self {
+        Self {
+            block_height,
+            is_leader,
+            leader_id,
+            tx_order: TransactionOrder::default(),
+        }
+    }
+
+    pub fn update(&mut self, block_height: BlockHeight, is_leader: bool, leader_id: SequencerId) {
+        self.block_height = block_height;
+        self.is_leader = is_leader;
+        self.leader_id = leader_id;
+        self.tx_order = TransactionOrder::default();
+    }
+
+    pub fn block_height(&self) -> BlockHeight {
+        self.block_height.clone()
+    }
+
+    pub fn is_leader(&self) -> bool {
+        self.is_leader
+    }
+
+    pub fn leader_id(&self) -> SequencerId {
+        self.leader_id.clone()
+    }
+
+    pub fn issue_tx_order(&mut self) -> TransactionOrder {
+        let current_order = self.tx_order.clone();
+        self.tx_order.increment();
+        current_order
+    }
+
+    pub fn tx_order(&self) -> TransactionOrder {
+        self.tx_order.clone()
+    }
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct Block(Vec<RawTransaction>);
