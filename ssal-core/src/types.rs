@@ -133,19 +133,19 @@ impl AsRef<str> for SequencerId {
 
 impl From<&str> for SequencerId {
     fn from(value: &str) -> Self {
-        Self(value.to_string())
+        Self(format!("http://{}", value))
     }
 }
 
 impl From<String> for SequencerId {
     fn from(value: String) -> Self {
-        Self(value)
+        Self(format!("http://{}", value))
     }
 }
 
 impl From<&String> for SequencerId {
     fn from(value: &String) -> Self {
-        Self(value.to_string())
+        Self(format!("http://{}", value))
     }
 }
 
