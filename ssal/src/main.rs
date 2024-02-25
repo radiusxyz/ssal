@@ -21,6 +21,14 @@ async fn main() -> Result<(), Error> {
 
     let env_variables: Vec<String> = env::args().skip(1).collect();
 
+    // Initialize the listener socket.
+    let address = env_variables
+        .get(0)
+        .wrap("Provide the address for the server to bind to")?;
+    let listener = TcpListener::bind(address)
+        .await
+        .wrap(format!("Failed to bind to {:?}", address))?;
+
     // Initialize the database.
     let database_path = env::current_dir()
         .wrap("Failed to get the current directory")?
@@ -30,14 +38,6 @@ async fn main() -> Result<(), Error> {
     // Initialize the rollup set.
     let rollup_set = RollupSet::default();
     database.put(&"rollup_set", &rollup_set)?;
-
-    // Initialize the listener socket.
-    let address = env_variables
-        .get(0)
-        .wrap("Provide the address for the server to bind to")?;
-    let listener = TcpListener::bind(address)
-        .await
-        .wrap(format!("Failed to bind to {:?}", address))?;
 
     // Set handlers.
     let app = Router::new()
