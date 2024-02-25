@@ -59,14 +59,16 @@ pub fn leader_poller(
                     .get_mut::<(&'static str, &RollupId), BlockMetadata>(&block_metadata_key)
                 {
                     Ok(mut block_metadata) => {
-                        let current_block_height = block_metadata.block_height();
-                        let current_tx_order = block_metadata.tx_order();
-                        block_builder(
-                            database.clone(),
-                            rollup_id,
-                            current_block_height,
-                            current_tx_order,
-                        );
+                        if block_metadata.is_leader() {
+                            let current_block_height = block_metadata.block_height();
+                            let current_tx_order = block_metadata.tx_order();
+                            block_builder(
+                                database.clone(),
+                                rollup_id,
+                                current_block_height,
+                                current_tx_order,
+                            );
+                        }
 
                         block_metadata.update(
                             block_height.clone(),
