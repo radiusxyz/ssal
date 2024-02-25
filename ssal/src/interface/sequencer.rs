@@ -24,7 +24,7 @@ impl RegisterSequencer {
             }
             Err(error) => match error.is_none_type() {
                 true => {
-                    let mut sequencer_set = SequencerSet::default();
+                    let mut sequencer_set = SequencerSet::new(block_height.clone());
                     sequencer_set.register(payload.sequencer_id)?;
                     state.put(&sequencer_set_key, &sequencer_set)?;
                     Ok((StatusCode::OK, Json(block_height.clone())))

@@ -149,19 +149,29 @@ impl From<&String> for SequencerId {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct SequencerSet(HashSet<SequencerId>);
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SequencerSet {
+    block_height: BlockHeight,
+    set: HashSet<SequencerId>,
+}
 
 impl SequencerSet {
+    pub fn new(block_height: BlockHeight) -> Self {
+        Self {
+            block_height,
+            set: HashSet::default(),
+        }
+    }
+
     pub fn register(&mut self, sequencer_id: SequencerId) -> Result<(), Error> {
-        match self.0.insert(sequencer_id) {
+        match self.set.insert(sequencer_id) {
             true => Ok(()),
             false => Err(Error::from("Sequencer is already registered")),
         }
     }
 
     pub fn elect_leader(&mut self) -> Result<SequencerId, Error> {
-        let sequencer_vec: Vec<SequencerId> = self.0.iter().cloned().collect();
+        let sequencer_vec: Vec<SequencerId> = self.set.iter().cloned().collect();
         match sequencer_vec.choose(&mut rand::thread_rng()) {
             Some(leader) => Ok(leader.clone()),
             None => Err(Error::from("Failed to elect the leader.")),
