@@ -29,10 +29,12 @@ async fn main() -> Result<(), Error> {
         .wrap("Failed to parse SSAL environment variable String into URL")?;
 
     register(&ssal_url, &rollup_id).await?;
+    let mut block_height = 1;
     loop {
         sleep(Duration::from_secs(5)).await;
         if let Some(leader_id) = close_block(&ssal_url, &rollup_id).await? {
-            tracing::info!("{:?}", leader_id);
+            tracing::info!("{:?}, {:?}, {:?}", rollup_id, block_height, leader_id);
+            block_height += 1;
         }
     }
 }
