@@ -19,6 +19,7 @@ impl RegisterSequencer {
         match state.get_mut::<(&str, &RollupId, &BlockHeight), SequencerSet>(&sequencer_set_key) {
             Ok(mut sequencer_set) => {
                 sequencer_set.register(payload.sequencer_id)?;
+                sequencer_set.commit()?;
                 Ok((StatusCode::OK, Json(&*block_height)).into_response())
             }
             Err(error) => match error.is_none_type() {
