@@ -33,7 +33,7 @@ pub fn registerer(
                     ssal_url.clone(),
                     rollup_id.clone(),
                     sequencer_id.clone(),
-                    block_height,
+                    block_height.clone(),
                 );
             }
             sleep(Duration::from_millis(500)).await;
@@ -59,13 +59,26 @@ pub fn leader_poller(
                     .get_mut::<(&'static str, &RollupId), BlockMetadata>(&block_metadata_key)
                 {
                     Ok(mut block_metadata) => {
-                        block_metadata.update(block_height, leader_id == sequencer_id, leader_id);
+                        let current_block_height = block_metadata.block_height();
+                        let current_tx_order = block_metadata.tx_order();
+                        block_builder(
+                            database.clone(),
+                            rollup_id,
+                            current_block_height,
+                            current_tx_order,
+                        );
+
+                        block_metadata.update(
+                            block_height.clone(),
+                            leader_id == sequencer_id,
+                            leader_id,
+                        );
                         block_metadata.commit().unwrap();
                     }
                     Err(error) => {
                         if error.is_none_type() {
                             let block_metadata = BlockMetadata::new(
-                                block_height,
+                                block_height.clone(),
                                 leader_id == sequencer_id,
                                 leader_id,
                             );
@@ -77,5 +90,27 @@ pub fn leader_poller(
             }
             sleep(Duration::from_millis(100)).await;
         }
+    });
+}
+
+pub fn block_builder(
+    database: Database,
+    rollup_id: RollupId,
+    block_height: BlockHeight,
+    tx_count: TransactionOrder,
+) {
+    tokio::spawn(async move {
+        let block: Vec<RawTransaction> = tx_count
+            .iter()
+            .map(|tx_order| {
+                let raw_tx: RawTransaction = database
+                    .get(&("raw_tx", &rollup_id, &block_height, &tx_order))
+                    .unwrap();
+                raw_tx
+            })
+            .collect();
+        database
+            .put(&("block", &rollup_id, &block_height), &block)
+            .unwrap();
     });
 }

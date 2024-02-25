@@ -10,9 +10,9 @@ pub struct GetBlock {
 impl GetBlock {
     pub async fn handler(
         State(state): State<Database>,
-        Json(payload): Json<Self>,
+        Query(parameter): Query<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let block: Block = state.get(&("block", &payload.rollup_id, &payload.block_height))?;
+        let block: Block = state.get(&("block", &parameter.rollup_id, &parameter.block_height))?;
         Ok((StatusCode::OK, Json(block)))
     }
 }
