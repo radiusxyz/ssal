@@ -12,7 +12,8 @@ impl GetBlock {
         State(state): State<Database>,
         Query(parameter): Query<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let block: Block = state.get(&("block", &parameter.rollup_id, &parameter.block_height))?;
+        let block: Vec<RawTransaction> =
+            state.get(&("block", &parameter.rollup_id, &parameter.block_height))?;
         Ok((StatusCode::OK, Json(block)))
     }
 }
