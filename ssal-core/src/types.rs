@@ -188,6 +188,12 @@ impl std::fmt::Display for RawTransaction {
     }
 }
 
+impl AsRef<[u8]> for RawTransaction {
+    fn as_ref(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
+}
+
 impl From<&str> for RawTransaction {
     fn from(value: &str) -> Self {
         Self(value.to_string())
