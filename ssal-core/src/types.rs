@@ -272,14 +272,6 @@ impl<'a> Iterator for TxOrderIterator<'a> {
     }
 }
 
-#[test]
-fn test_iter() {
-    let tx_order = TransactionOrder::from(100);
-    for i in tx_order.iter() {
-        dbg!(i);
-    }
-}
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockMetadata {
     block_height: BlockHeight,
@@ -327,6 +319,3 @@ impl BlockMetadata {
         self.tx_order.clone()
     }
 }
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct Block(Vec<RawTransaction>);
