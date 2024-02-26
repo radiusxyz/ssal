@@ -2,6 +2,7 @@
 members = [
     "ssal",
     "ssal-client",
+    "ssal-commitment",
     "ssal-core",
     "ssal-database",
     "ssal-rollup",
