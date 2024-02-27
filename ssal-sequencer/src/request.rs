@@ -69,6 +69,38 @@ pub async fn get_leader(
     }
 }
 
+pub async fn get_followers(
+    ssal_base_url: &Url,
+    rollup_id: &RollupId,
+    block_height: &BlockHeight,
+) -> Result<Option<SequencerSet>, Error> {
+    let url = ssal_base_url
+        .join("sequencer/followers")
+        .wrap("[GetFollowers] Failed to parse into URL")?;
+
+    let query = [
+        ("rollup_id", rollup_id.to_string()),
+        ("block_height", block_height.to_string()),
+    ];
+
+    let response = Client::new()
+        .get(url.clone())
+        .query(&query)
+        .send()
+        .await
+        .wrap("[GetFollowers]: Failed to send a request")?;
+
+    if response.status() == StatusCode::OK {
+        let followers = response.json::<SequencerSet>().await.wrap(format!(
+            "[GetFollowers]: Failed to parse the response into type: {}",
+            any::type_name::<SequencerSet>(),
+        ))?;
+        Ok(Some(followers))
+    } else {
+        Ok(None)
+    }
+}
+
 pub async fn forward_transaction(
     leader_id: SequencerId,
     rollup_id: RollupId,
