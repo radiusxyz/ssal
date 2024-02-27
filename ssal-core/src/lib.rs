@@ -1,6 +1,7 @@
 pub mod error;
 pub use axum;
 pub use bincode;
+pub use ethers;
 pub use rand;
 pub use reqwest;
 pub use rocksdb;
