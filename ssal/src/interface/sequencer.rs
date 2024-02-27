@@ -52,3 +52,24 @@ impl GetLeader {
         Ok((StatusCode::OK, Json(leader_id)))
     }
 }
+
+#[derive(Deserialize, Serialize)]
+#[serde(crate = "ssal_core::serde")]
+pub struct GetFollowers {
+    rollup_id: RollupId,
+    block_height: BlockHeight,
+}
+
+impl GetFollowers {
+    pub async fn handler(
+        State(state): State<Database>,
+        Query(parameter): Query<Self>,
+    ) -> Result<impl IntoResponse, Error> {
+        let sequencer_set: SequencerSet = state.get(&(
+            "sequencer_set",
+            &parameter.rollup_id,
+            &parameter.block_height,
+        ))?;
+        Ok((StatusCode::OK, Json(sequencer_set)))
+    }
+}

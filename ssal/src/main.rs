@@ -44,6 +44,7 @@ async fn main() -> Result<(), Error> {
         .route("/client/sequencer-set", get(GetSequencerSet::handler))
         .route("/sequencer/register", post(RegisterSequencer::handler))
         .route("/sequencer/leader", get(GetLeader::handler))
+        .route("/sequencer/followers", get(GetFollowers::handler))
         .route("/rollup/register", post(RegisterRollup::handler))
         .route("/rollup/deregister", post(DeregisterRollup::handler))
         .route("/rollup/close-block", post(CloseBlock::handler))
