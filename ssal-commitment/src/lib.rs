@@ -7,7 +7,7 @@ use ark_ec::PairingEngine;
 use ark_ff::FromBytes;
 use ark_std::test_rng;
 use param::{ProverParam, StructuredReferenceString};
-use sha2::{Digest, Sha256};
+use sha2::{Digest, Sha224};
 use ssal_core::types::RawTransaction;
 
 pub struct Commitment<E: PairingEngine, const N: usize> {
@@ -46,7 +46,7 @@ pub fn get_block_commitment(block: Vec<RawTransaction>) -> String {
     let message: Vec<<Bn254 as PairingEngine>::Fr> = block
         .into_iter()
         .map(|raw_tx| {
-            let mut hasher = Sha256::new();
+            let mut hasher = Sha224::new();
             hasher.update(raw_tx.as_ref());
             let hashed_raw_tx = hasher.finalize();
             <Bn254 as PairingEngine>::Fr::read(hashed_raw_tx.as_slice()).unwrap()
