@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{hash_set::Iter, HashSet};
 
 use rand::{self, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
@@ -176,6 +176,10 @@ impl SequencerSet {
             Some(leader) => Ok(leader.clone()),
             None => Err(Error::from("Failed to elect the leader.")),
         }
+    }
+
+    pub fn iter<'a>(&'a self) -> Iter<'a, SequencerId> {
+        self.set.iter()
     }
 }
 
