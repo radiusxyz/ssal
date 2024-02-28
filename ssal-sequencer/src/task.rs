@@ -134,11 +134,5 @@ pub fn block_builder(
                 &block_commitment,
             )
             .unwrap();
-        tracing::info!(
-            "Block commitment: {:?} for {:?}, {:?}",
-            block_commitment,
-            rollup_id,
-            block_height
-        );
     });
 }
