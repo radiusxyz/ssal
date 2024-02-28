@@ -9,7 +9,7 @@ use ssal_core::{
 };
 use ssal_database::Database;
 
-use crate::request::{get_sequencer_set, register};
+use crate::request::{get_closed_sequencer_set, register};
 
 pub fn registerer(
     database: Database,
@@ -50,9 +50,10 @@ pub fn leader_poller(
 ) {
     tokio::spawn(async move {
         loop {
-            if let Some(sequencer_set) = get_sequencer_set(&ssal_url, &rollup_id, &block_height)
-                .await
-                .unwrap()
+            if let Some(sequencer_set) =
+                get_closed_sequencer_set(&ssal_url, &rollup_id, &block_height)
+                    .await
+                    .unwrap()
             {
                 let block_metadata_key = ("block_metadata", &rollup_id);
                 let sequencer_set_key = ("sequencer_set", &rollup_id, &block_height);
@@ -71,7 +72,7 @@ pub fn leader_poller(
                             current_tx_count,
                         );
 
-                        // Store the registered sequencer set.
+                        // Store the sequencer set.
                         let leader_id = sequencer_set.leader().unwrap();
                         database.put(&sequencer_set_key, &sequencer_set).unwrap();
 
@@ -85,7 +86,7 @@ pub fn leader_poller(
                     }
                     Err(error) => {
                         if error.is_none_type() {
-                            // Store the registered sequencer set.
+                            // Store the sequencer set.
                             let leader_id = sequencer_set.leader().unwrap();
                             database.put(&sequencer_set_key, &sequencer_set).unwrap();
 
@@ -133,5 +134,11 @@ pub fn block_builder(
                 &block_commitment,
             )
             .unwrap();
+        tracing::info!(
+            "Block commitment: {:?} for {:?}, {:?}",
+            block_commitment,
+            rollup_id,
+            block_height
+        );
     });
 }

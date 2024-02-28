@@ -12,7 +12,7 @@ impl GetBlockCommitment {
         State(state): State<Database>,
         Query(parameter): Query<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let block_commitment = state.get(&(
+        let block_commitment: String = state.get(&(
             "block_commitment",
             &parameter.rollup_id,
             &parameter.block_height,

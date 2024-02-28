@@ -37,14 +37,14 @@ pub async fn register(
     }
 }
 
-pub async fn get_sequencer_set(
+pub async fn get_closed_sequencer_set(
     ssal_base_url: &Url,
     rollup_id: &RollupId,
     block_height: &BlockHeight,
 ) -> Result<Option<SequencerSet>, Error> {
     let url = ssal_base_url
-        .join("/get-sequencer-set")
-        .wrap("[GetRegisteredSequencers]: Failed to parse into URL")?;
+        .join("/get-closed-sequencer-set")
+        .wrap("[GetClosedSequencerSet]: Failed to parse into URL")?;
 
     let query = [
         ("rollup_id", rollup_id.to_string()),
@@ -56,14 +56,14 @@ pub async fn get_sequencer_set(
         .query(&query)
         .send()
         .await
-        .wrap("[GetRegisteredSequencers]: Failed to send a request")?;
+        .wrap("[GetClosedSequencerSet]: Failed to send a request")?;
 
     if response.status() == StatusCode::OK {
-        let registered_sequencers = response.json::<SequencerSet>().await.wrap(format!(
-            "[GetRegisteredSequencers]: Failed to parse the response into type: {}",
+        let sequencer_set = response.json::<SequencerSet>().await.wrap(format!(
+            "[GetClosedSequencerSet]: Failed to parse the response into type: {}",
             any::type_name::<SequencerSet>()
         ))?;
-        Ok(Some(registered_sequencers))
+        Ok(Some(sequencer_set))
     } else {
         Ok(None)
     }
