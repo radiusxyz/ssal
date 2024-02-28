@@ -48,7 +48,8 @@ pub fn get_block_commitment(block: Vec<RawTransaction>) -> String {
         .map(|raw_tx| {
             let mut hasher = Sha224::new();
             hasher.update(raw_tx.as_ref());
-            let hashed_raw_tx = hasher.finalize();
+            let mut hashed_raw_tx = hasher.finalize().to_vec();
+            hashed_raw_tx.extend_from_slice(&[0; 24]);
             <Bn254 as PairingEngine>::Fr::read(hashed_raw_tx.as_slice()).unwrap()
         })
         .collect();
