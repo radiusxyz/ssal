@@ -153,6 +153,7 @@ impl From<&String> for SequencerId {
 pub struct SequencerSet {
     block_height: BlockHeight,
     set: HashSet<SequencerId>,
+    leader: Option<SequencerId>,
 }
 
 impl SequencerSet {
@@ -160,6 +161,7 @@ impl SequencerSet {
         Self {
             block_height,
             set: HashSet::default(),
+            leader: None,
         }
     }
 
@@ -173,8 +175,18 @@ impl SequencerSet {
     pub fn elect_leader(&mut self) -> Result<SequencerId, Error> {
         let sequencer_vec: Vec<SequencerId> = self.set.iter().cloned().collect();
         match sequencer_vec.choose(&mut rand::thread_rng()) {
-            Some(leader) => Ok(leader.clone()),
+            Some(leader) => {
+                self.leader = Some(leader.clone());
+                Ok(leader.clone())
+            }
             None => Err(Error::from("Failed to elect the leader.")),
+        }
+    }
+
+    pub fn leader(&self) -> Option<SequencerId> {
+        match &self.leader {
+            Some(leader) => Some(leader.clone()),
+            None => None,
         }
     }
 
