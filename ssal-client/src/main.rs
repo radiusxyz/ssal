@@ -76,7 +76,7 @@ pub async fn send_transaction(
 ) -> Result<Option<OrderCommitment>, Error> {
     let url = Url::from_str(sequencer_id.as_ref())
         .wrap("[SendTransaction]: Failed to parse into URL (base)")?
-        .join("common/send-transaction")
+        .join("client/send-transaction")
         .wrap("[SendTransaction]: Failed to parse into URL (path)")?;
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
