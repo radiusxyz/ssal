@@ -15,7 +15,7 @@ impl RegisterSequencer {
         let block_height_key = ("block_height", &payload.rollup_id);
         let block_height: Lock<BlockHeight> = state.get_mut(&block_height_key)?;
 
-        let sequencer_set_key = ("registered_sequencers", &payload.rollup_id, &*block_height);
+        let sequencer_set_key = ("sequencer_set", &payload.rollup_id, &*block_height);
         match state.get_mut::<(&str, &RollupId, &BlockHeight), SequencerSet>(&sequencer_set_key) {
             Ok(mut sequencer_set) => {
                 sequencer_set.register(payload.sequencer_id)?;

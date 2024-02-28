@@ -30,7 +30,7 @@ impl CloseBlock {
         // Advertise the sequencer_set.
         state.put(
             &(
-                "registered_sequencers",
+                "closed_sequencer_set",
                 &payload.rollup_id,
                 &previous_block_height,
             ),

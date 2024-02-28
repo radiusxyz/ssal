@@ -22,7 +22,7 @@ impl GetSequencerSet {
             _1_or_greater => {
                 // Always use the previous block height.
                 let sequencer_set: SequencerSet = state.get(&(
-                    "registered_sequencers",
+                    "closed_sequencer_set",
                     &parameter.rollup_id,
                     &previous_block_height,
                 ))?;
