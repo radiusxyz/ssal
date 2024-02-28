@@ -9,7 +9,7 @@ use ssal_core::{
 };
 use ssal_database::Database;
 
-use crate::request::{get_registered_sequencers, register};
+use crate::request::{get_sequencer_set, register};
 
 pub fn registerer(
     database: Database,
@@ -50,14 +50,12 @@ pub fn leader_poller(
 ) {
     tokio::spawn(async move {
         loop {
-            if let Some(registered_sequencers) =
-                get_registered_sequencers(&ssal_url, &rollup_id, &block_height)
-                    .await
-                    .unwrap()
+            if let Some(sequencer_set) = get_sequencer_set(&ssal_url, &rollup_id, &block_height)
+                .await
+                .unwrap()
             {
                 let block_metadata_key = ("block_metadata", &rollup_id);
-                let registered_sequencers_key =
-                    ("registered_sequencers", &rollup_id, &block_height);
+                let sequencer_set_key = ("sequencer_set", &rollup_id, &block_height);
                 match database
                     .get_mut::<(&'static str, &RollupId), BlockMetadata>(&block_metadata_key)
                 {
@@ -74,10 +72,8 @@ pub fn leader_poller(
                         );
 
                         // Store the registered sequencer set.
-                        let leader_id = registered_sequencers.leader().unwrap();
-                        database
-                            .put(&registered_sequencers_key, &registered_sequencers)
-                            .unwrap();
+                        let leader_id = sequencer_set.leader().unwrap();
+                        database.put(&sequencer_set_key, &sequencer_set).unwrap();
 
                         // Update the block metadata.
                         block_metadata.update(
@@ -90,10 +86,8 @@ pub fn leader_poller(
                     Err(error) => {
                         if error.is_none_type() {
                             // Store the registered sequencer set.
-                            let leader_id = registered_sequencers.leader().unwrap();
-                            database
-                                .put(&registered_sequencers_key, &registered_sequencers)
-                                .unwrap();
+                            let leader_id = sequencer_set.leader().unwrap();
+                            database.put(&sequencer_set_key, &sequencer_set).unwrap();
 
                             // Store the block metadata.
                             let block_metadata = BlockMetadata::new(

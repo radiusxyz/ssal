@@ -12,7 +12,7 @@ pub async fn register(
     sequencer_id: &SequencerId,
 ) -> Result<Option<BlockHeight>, Error> {
     let url = ssal_base_url
-        .join("sequencer/register")
+        .join("register-sequencer")
         .wrap("[RegisterSequencer] Failed to parse into URL")?;
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
@@ -37,13 +37,13 @@ pub async fn register(
     }
 }
 
-pub async fn get_registered_sequencers(
+pub async fn get_sequencer_set(
     ssal_base_url: &Url,
     rollup_id: &RollupId,
     block_height: &BlockHeight,
 ) -> Result<Option<SequencerSet>, Error> {
     let url = ssal_base_url
-        .join("sequencer/registered-sequencers")
+        .join("/get-sequencer-set")
         .wrap("[GetRegisteredSequencers]: Failed to parse into URL")?;
 
     let query = [
@@ -76,7 +76,7 @@ pub async fn forward_transaction(
 ) -> Result<OrderCommitment, Error> {
     let url = Url::from_str(leader_id.as_ref())
         .wrap("[SendTransaction]: Failed to parse into URL (base)")?
-        .join("/client/send-transaction")
+        .join("/send-transaction")
         .wrap("[SendTransaction]: Failed to parse into URL (path)")?;
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
@@ -112,7 +112,7 @@ pub async fn sync_transaction(
 ) -> Result<(), Error> {
     let url = Url::from_str(follower_id.as_ref())
         .wrap("[SyncTransaction]: Failed to parse into URL (base)")?
-        .join("/sequencer/sync-transaction")
+        .join("/sync-transaction")
         .wrap("[SyncTransaction]: Failed to parse into URL (path)")?;
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
