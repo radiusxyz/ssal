@@ -41,7 +41,7 @@ pub async fn get_sequencer_set(
     rollup_id: &RollupId,
 ) -> Result<Option<SequencerSet>, Error> {
     let url = ssal_base_url
-        .join("client/sequencer-set")
+        .join("get-sequencer-set")
         .wrap("[GetSequencerSet]: Failed to parse into URL")?;
 
     let query = [("rollup_id", rollup_id.to_string())];
@@ -76,7 +76,7 @@ pub async fn send_transaction(
 ) -> Result<Option<OrderCommitment>, Error> {
     let url = Url::from_str(sequencer_id.as_ref())
         .wrap("[SendTransaction]: Failed to parse into URL (base)")?
-        .join("client/send-transaction")
+        .join("send-transaction")
         .wrap("[SendTransaction]: Failed to parse into URL (path)")?;
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
