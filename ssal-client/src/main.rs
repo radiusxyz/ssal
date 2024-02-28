@@ -24,13 +24,15 @@ async fn main() -> Result<(), Error> {
         .wrap("Failed to parse SSAL environment variable String into URL")?;
     let rollup_id: RollupId = env_variables.get(1).wrap("Provide the rollup ID")?.into();
 
+    let mut raw_tx_count = 0;
     loop {
         if let Some(mut sequencer_set) = get_sequencer_set(&ssal_url, &rollup_id).await? {
             // Using elect leader for a convenient random selection.
             let follower_id = sequencer_set.elect_leader()?;
-            let raw_tx = RawTransaction::from("raw_tx");
+            let raw_tx = RawTransaction::from(raw_tx_count.to_string());
             let order_commitment = send_transaction(follower_id, &rollup_id, raw_tx).await?;
             tracing::info!("{:?}", order_commitment);
+            raw_tx_count += 1;
         }
         sleep(Duration::from_millis(200)).await;
     }
