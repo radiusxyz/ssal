@@ -1,4 +1,5 @@
 mod close_block;
+mod get_closed_sequencer_set;
 mod get_sequencer_set;
 mod register_rollup;
 mod register_sequencer;
@@ -18,4 +19,7 @@ pub mod prelude {
     };
     pub use ssal_database::{Database, Lock};
 }
-pub use self::{close_block::*, get_sequencer_set::*, register_rollup::*, register_sequencer::*};
+pub use self::{
+    close_block::*, get_closed_sequencer_set::*, get_sequencer_set::*, register_rollup::*,
+    register_sequencer::*,
+};

@@ -43,6 +43,10 @@ async fn main() -> Result<(), Error> {
     let app = Router::new()
         .route("/close-block", post(CloseBlock::handler))
         .route("/get-sequencer-set", get(GetSequencerSet::handler))
+        .route(
+            "/get-closed-sequencer-set",
+            get(GetClosedSequencerSet::handler),
+        )
         .route("/register-rollup", post(RegisterRollup::handler))
         .route("/register-sequencer", post(RegisterSequencer::handler))
         .layer(CorsLayer::permissive())

@@ -20,7 +20,6 @@ impl GetSequencerSet {
         match previous_block_height.value() {
             0 => Err(Error::from("Sequencer registration in progress.")),
             _1_or_greater => {
-                // Always use the previous block height.
                 let sequencer_set: SequencerSet = state.get(&(
                     "closed_sequencer_set",
                     &parameter.rollup_id,
