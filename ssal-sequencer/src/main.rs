@@ -15,7 +15,7 @@ use ssal_core::{
 };
 use ssal_database::Database;
 use ssal_sequencer::{
-    interface::{common::*, operator::*, rollup::*},
+    interface::{client::*, operator::*, rollup::*, sequencer::*},
     task::registerer,
 };
 
@@ -63,12 +63,16 @@ async fn main() -> Result<(), Error> {
 
     // Set handlers
     let app = Router::new()
-        .route("/common/send-transaction", post(SendTransaction::handler))
+        .route("/client/send-transaction", post(SendTransaction::handler))
         .route(
             "/operator/block-commitment",
             get(GetBlockCommitment::handler),
         )
         .route("/rollup/block", get(GetBlock::handler))
+        .route(
+            "/sequencer/sync-transaction",
+            post(SyncTransaction::handler),
+        )
         .layer(CorsLayer::permissive())
         .with_state(database);
 

@@ -74,14 +74,15 @@ impl CloseBlock {
 
         // Always use the previous block height.
         // Elect the leader.
-        let mut sequencer_set: Lock<SequencerSet> =
-            state.get_mut(&("sequencer_set", &payload.rollup_id, &previous_block_height))?;
+        let registered_sequencers_key =
+            ("sequencer_set", &payload.rollup_id, &previous_block_height);
+        let mut sequencer_set: Lock<SequencerSet> = state.get_mut(&registered_sequencers_key)?;
         let leader_id = sequencer_set.elect_leader()?;
 
         // Advertise the sequencer_set.
         state.put(
             &(
-                "registered-sequencers",
+                "registered_sequencers",
                 &payload.rollup_id,
                 &previous_block_height,
             ),

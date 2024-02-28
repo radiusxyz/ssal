@@ -1,5 +1,7 @@
-pub mod common;
+pub mod client;
 pub mod operator;
+pub mod rollup;
+pub mod sequencer;
 pub mod prelude {
     pub use ssal_core::{
         axum::{
@@ -16,4 +18,3 @@ pub mod prelude {
     };
     pub use ssal_database::{Database, Lock};
 }
-pub mod rollup;

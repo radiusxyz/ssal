@@ -37,46 +37,14 @@ pub async fn register(
     }
 }
 
-pub async fn get_leader(
-    ssal_base_url: &Url,
-    rollup_id: &RollupId,
-    block_height: &BlockHeight,
-) -> Result<Option<SequencerId>, Error> {
-    let url = ssal_base_url
-        .join("sequencer/leader")
-        .wrap("[GetLeader] Failed to parse into URL")?;
-
-    let query = [
-        ("rollup_id", rollup_id.to_string()),
-        ("block_height", block_height.to_string()),
-    ];
-
-    let response = Client::new()
-        .get(url.clone())
-        .query(&query)
-        .send()
-        .await
-        .wrap("[GetLeader]: Failed to send a request")?;
-
-    if response.status() == StatusCode::OK {
-        let leader_id = response.json::<SequencerId>().await.wrap(format!(
-            "[GetLeader]: Failed to parse the response into type: {}",
-            any::type_name::<SequencerId>(),
-        ))?;
-        Ok(Some(leader_id))
-    } else {
-        Ok(None)
-    }
-}
-
-pub async fn get_followers(
+pub async fn get_registered_sequencers(
     ssal_base_url: &Url,
     rollup_id: &RollupId,
     block_height: &BlockHeight,
 ) -> Result<Option<SequencerSet>, Error> {
     let url = ssal_base_url
-        .join("sequencer/followers")
-        .wrap("[GetFollowers] Failed to parse into URL")?;
+        .join("sequencer/registered-sequencers")
+        .wrap("[GetRegisteredSequencers]: Failed to parse into URL")?;
 
     let query = [
         ("rollup_id", rollup_id.to_string()),
@@ -84,31 +52,31 @@ pub async fn get_followers(
     ];
 
     let response = Client::new()
-        .get(url.clone())
+        .get(url)
         .query(&query)
         .send()
         .await
-        .wrap("[GetFollowers]: Failed to send a request")?;
+        .wrap("[GetRegisteredSequencers]: Failed to send a request")?;
 
     if response.status() == StatusCode::OK {
-        let followers = response.json::<SequencerSet>().await.wrap(format!(
-            "[GetFollowers]: Failed to parse the response into type: {}",
-            any::type_name::<SequencerSet>(),
+        let registered_sequencers = response.json::<SequencerSet>().await.wrap(format!(
+            "[GetRegisteredSequencers]: Failed to parse the response into type: {}",
+            any::type_name::<SequencerSet>()
         ))?;
-        Ok(Some(followers))
+        Ok(Some(registered_sequencers))
     } else {
         Ok(None)
     }
 }
 
 pub async fn forward_transaction(
-    leader_id: SequencerId,
-    rollup_id: RollupId,
-    raw_tx: RawTransaction,
+    leader_id: &SequencerId,
+    rollup_id: &RollupId,
+    raw_tx: &RawTransaction,
 ) -> Result<OrderCommitment, Error> {
     let url = Url::from_str(leader_id.as_ref())
         .wrap("[SendTransaction]: Failed to parse into URL (base)")?
-        .join("/common/send-transaction")
+        .join("/client/send-transaction")
         .wrap("[SendTransaction]: Failed to parse into URL (path)")?;
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
@@ -135,4 +103,27 @@ pub async fn forward_transaction(
             .wrap("[SendTransaction]: Failed to parse the response into String")?;
         Err(Error::from(error))
     }
+}
+
+pub async fn sync_transaction(
+    follower_id: &SequencerId,
+    rollup_id: &RollupId,
+    raw_tx: &RawTransaction,
+) -> Result<(), Error> {
+    let url = Url::from_str(follower_id.as_ref())
+        .wrap("[SyncTransaction]: Failed to parse into URL (base)")?
+        .join("/sequencer/sync-transaction")
+        .wrap("[SyncTransaction]: Failed to parse into URL (path)")?;
+
+    let mut payload: HashMap<&'static str, String> = HashMap::new();
+    payload.insert("rollup_id", rollup_id.to_string());
+    payload.insert("raw_tx", raw_tx.to_string());
+
+    Client::new()
+        .post(url)
+        .json(&payload)
+        .send()
+        .await
+        .wrap("[SyncTransaction]: Failed to send a request")?;
+    Ok(())
 }
