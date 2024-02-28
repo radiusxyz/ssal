@@ -111,11 +111,16 @@ pub fn block_builder(
                 raw_tx
             })
             .collect();
-
         database
             .put(&("block", &rollup_id, &block_height), &block)
             .unwrap();
 
-        let commitment = ssal_commitment::get_block_commitment(block);
+        let block_commitment = ssal_commitment::get_block_commitment(block);
+        database
+            .put(
+                &("block_commitment", &rollup_id, &block_height),
+                &block_commitment,
+            )
+            .unwrap();
     });
 }
