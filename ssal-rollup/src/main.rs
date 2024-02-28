@@ -41,7 +41,7 @@ async fn main() -> Result<(), Error> {
 
 async fn register(ssal_base_url: &Url, rollup_id: &RollupId) -> Result<(), Error> {
     let url = ssal_base_url
-        .join("rollup/register")
+        .join("register-rollup")
         .wrap("[RegisterRollup] Failed to parse into URL")?;
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
@@ -75,7 +75,7 @@ async fn close_block(
     rollup_id: &RollupId,
 ) -> Result<Option<SequencerId>, Error> {
     let url = ssal_base_url
-        .join("rollup/close-block")
+        .join("close-block")
         .wrap("[CloseBlock] Failed to parse into URL")?;
 
     let mut payload = HashMap::<&'static str, String>::new();
