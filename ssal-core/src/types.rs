@@ -325,7 +325,7 @@ impl BlockMetadata {
         current_order
     }
 
-    pub fn tx_order(&self) -> TransactionOrder {
+    pub fn tx_count(&self) -> TransactionOrder {
         self.tx_order.clone()
     }
 }

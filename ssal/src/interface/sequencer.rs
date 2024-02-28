@@ -37,36 +37,18 @@ impl RegisterSequencer {
 
 #[derive(Deserialize, Serialize)]
 #[serde(crate = "ssal_core::serde")]
-pub struct GetLeader {
+pub struct GetRegisteredSequencers {
     rollup_id: RollupId,
     block_height: BlockHeight,
 }
 
-impl GetLeader {
-    pub async fn handler(
-        State(state): State<Database>,
-        Query(parameter): Query<Self>,
-    ) -> Result<impl IntoResponse, Error> {
-        let leader_id: SequencerId =
-            state.get(&("leader", &parameter.rollup_id, &parameter.block_height))?;
-        Ok((StatusCode::OK, Json(leader_id)))
-    }
-}
-
-#[derive(Deserialize, Serialize)]
-#[serde(crate = "ssal_core::serde")]
-pub struct GetFollowers {
-    rollup_id: RollupId,
-    block_height: BlockHeight,
-}
-
-impl GetFollowers {
+impl GetRegisteredSequencers {
     pub async fn handler(
         State(state): State<Database>,
         Query(parameter): Query<Self>,
     ) -> Result<impl IntoResponse, Error> {
         let sequencer_set: SequencerSet = state.get(&(
-            "sequencer_set",
+            "registered_sequencers",
             &parameter.rollup_id,
             &parameter.block_height,
         ))?;

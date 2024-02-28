@@ -78,11 +78,16 @@ impl CloseBlock {
             state.get_mut(&("sequencer_set", &payload.rollup_id, &previous_block_height))?;
         let leader_id = sequencer_set.elect_leader()?;
 
-        // Publish the leader.
+        // Advertise the sequencer_set.
         state.put(
-            &("leader", &payload.rollup_id, &previous_block_height),
-            &leader_id,
+            &(
+                "registered-sequencers",
+                &payload.rollup_id,
+                &previous_block_height,
+            ),
+            &*sequencer_set,
         )?;
+        sequencer_set.commit()?;
 
         tracing::info!(
             "[CloseBlock]: Successfully elected the leader for {:?}: {:?}",
