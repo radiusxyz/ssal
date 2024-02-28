@@ -1,7 +1,7 @@
-pub mod client;
-pub mod operator;
-pub mod rollup;
-pub mod sequencer;
+mod get_block;
+mod get_block_commitment;
+mod send_transaction;
+mod sync_transaction;
 pub mod prelude {
     pub use ssal_core::{
         axum::{
@@ -18,3 +18,4 @@ pub mod prelude {
     };
     pub use ssal_database::{Database, Lock};
 }
+pub use self::{get_block::*, get_block_commitment::*, send_transaction::*, sync_transaction::*};

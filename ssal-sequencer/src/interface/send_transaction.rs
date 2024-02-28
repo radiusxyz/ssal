@@ -22,9 +22,9 @@ impl SendTransaction {
             let tx_order = block_metadata.issue_tx_order();
 
             // Sync the transaction.
-            let registered_sequencers: SequencerSet =
-                state.get(&("registered_sequencers", &payload.rollup_id, &block_height))?;
-            for follower_id in registered_sequencers.iter() {
+            let sequencer_set: SequencerSet =
+                state.get(&("sequencer_set", &payload.rollup_id, &block_height))?;
+            for follower_id in sequencer_set.iter() {
                 if *follower_id != leader_id {
                     let _ =
                         sync_transaction(follower_id, &payload.rollup_id, &payload.raw_tx).await;

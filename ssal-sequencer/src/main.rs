@@ -14,10 +14,7 @@ use ssal_core::{
     types::*,
 };
 use ssal_database::Database;
-use ssal_sequencer::{
-    interface::{client::*, operator::*, rollup::*, sequencer::*},
-    task::registerer,
-};
+use ssal_sequencer::{interface::*, task::registerer};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Error> {
@@ -63,16 +60,10 @@ async fn main() -> Result<(), Error> {
 
     // Set handlers
     let app = Router::new()
-        .route("/client/send-transaction", post(SendTransaction::handler))
-        .route(
-            "/operator/block-commitment",
-            get(GetBlockCommitment::handler),
-        )
-        .route("/rollup/block", get(GetBlock::handler))
-        .route(
-            "/sequencer/sync-transaction",
-            post(SyncTransaction::handler),
-        )
+        .route("/get-block-commitment", get(GetBlockCommitment::handler))
+        .route("/get-block", get(GetBlock::handler))
+        .route("/send-transaction", post(SendTransaction::handler))
+        .route("/sync-transaction", post(SyncTransaction::handler))
         .layer(CorsLayer::permissive())
         .with_state(database);
 
