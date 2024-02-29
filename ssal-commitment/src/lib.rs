@@ -39,7 +39,7 @@ pub trait CommitmentScheme {
     fn to_string(&self) -> String;
 }
 
-pub fn get_block_commitment(block: Vec<RawTransaction>) -> Vec<u8> {
+pub fn get_block_commitment(block: Vec<RawTransaction>) -> String {
     let mut rng = test_rng();
     let srs = StructuredReferenceString::<Bn254, 128>::new_srs_for_testing(&mut rng);
     let prover_param: ProverParam<Bn254, 128> = (&srs).into();
@@ -54,7 +54,5 @@ pub fn get_block_commitment(block: Vec<RawTransaction>) -> Vec<u8> {
         })
         .collect();
 
-    Commitment::<Bn254, 128>::commit(&prover_param, &message)
-        .to_string()
-        .into_bytes()
+    Commitment::<Bn254, 128>::commit(&prover_param, &message).to_string()
 }
