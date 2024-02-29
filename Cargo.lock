@@ -3528,7 +3528,6 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "bincode",
- "ethers",
  "rand",
  "reqwest",
  "rocksdb",
@@ -3559,6 +3558,7 @@ dependencies = [
 name = "ssal-sequencer"
 version = "0.1.0"
 dependencies = [
+ "ethers",
  "ssal-commitment",
  "ssal-core",
  "ssal-database",
