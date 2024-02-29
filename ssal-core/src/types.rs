@@ -75,6 +75,12 @@ impl std::fmt::Display for RollupId {
     }
 }
 
+impl AsRef<str> for RollupId {
+    fn as_ref(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
 impl From<&str> for RollupId {
     fn from(value: &str) -> Self {
         Self(value.to_string())
