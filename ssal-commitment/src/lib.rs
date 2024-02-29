@@ -4,7 +4,7 @@ pub mod vc;
 
 use ark_bn254::Bn254;
 use ark_ec::PairingEngine;
-use ark_ff::FromBytes;
+use ark_ff::{BigInteger, FromBytes};
 use ark_std::test_rng;
 use param::{ProverParam, StructuredReferenceString};
 use sha2::{Digest, Sha224};
@@ -39,7 +39,7 @@ pub trait CommitmentScheme {
     fn to_string(&self) -> String;
 }
 
-pub fn get_block_commitment(block: Vec<RawTransaction>) -> String {
+pub fn get_block_commitment(block: Vec<RawTransaction>) -> Vec<u8> {
     let mut rng = test_rng();
     let srs = StructuredReferenceString::<Bn254, 128>::new_srs_for_testing(&mut rng);
     let prover_param: ProverParam<Bn254, 128> = (&srs).into();
@@ -54,5 +54,6 @@ pub fn get_block_commitment(block: Vec<RawTransaction>) -> String {
         })
         .collect();
 
-    Commitment::<Bn254, 128>::commit(&prover_param, &message).to_string()
+    let commitment = Commitment::<Bn254, 128>::commit(&prover_param, &message);
+    commitment.to_string().into_bytes()
 }
