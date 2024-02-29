@@ -8,16 +8,17 @@ use ethers::{
 };
 use ssal_database::Database;
 
-pub struct AppState(Arc<AppStateInner>);
-
-pub struct AppStateInner {
-    client: SignerMiddleware<Provider<Http>, Wallet<SigningKey>>,
+pub struct AppState {
+    client: Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>,
     database: Database,
 }
 
 impl Clone for AppState {
     fn clone(&self) -> Self {
-        Self(self.0.clone())
+        Self {
+            client: self.client.clone(),
+            database: self.database.clone(),
+        }
     }
 }
 
@@ -26,14 +27,17 @@ impl AppState {
         client: SignerMiddleware<Provider<Http>, Wallet<SigningKey>>,
         database: Database,
     ) -> Self {
-        Self(Arc::new(AppStateInner { client, database }))
+        Self {
+            client: Arc::new(client),
+            database,
+        }
     }
 
-    pub fn client(&self) -> &SignerMiddleware<Provider<Http>, Wallet<SigningKey>> {
-        &self.0.client
+    pub fn client(&self) -> Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>> {
+        self.client.clone()
     }
 
     pub fn database(&self) -> &Database {
-        &self.0.database
+        &self.database
     }
 }
