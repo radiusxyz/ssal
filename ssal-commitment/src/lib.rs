@@ -4,7 +4,7 @@ pub mod vc;
 
 use ark_bn254::Bn254;
 use ark_ec::PairingEngine;
-use ark_ff::{BigInteger, FromBytes};
+use ark_ff::FromBytes;
 use ark_std::test_rng;
 use param::{ProverParam, StructuredReferenceString};
 use sha2::{Digest, Sha224};
