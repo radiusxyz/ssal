@@ -14,7 +14,7 @@ use ssal_core::{
     types::*,
 };
 use ssal_database::Database;
-use ssal_sequencer::{interface::*, task::registerer};
+use ssal_sequencer::{app_state::AppState, chain::init_client, interface::*, task::registerer};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Error> {
@@ -50,9 +50,20 @@ async fn main() -> Result<(), Error> {
         .try_into()
         .wrap("Failed to parse SSAL environment variable String into URL")?;
 
+    let chain_url = env_variables
+        .get(3)
+        .wrap("Provide the chain URL")?
+        .to_string();
+    let wallet_private_key = env_variables
+        .get(4)
+        .wrap("Provide the private key for the wallet")?;
+    let client = init_client(&chain_url, &wallet_private_key).await?;
+
+    let app_state = AppState::new(client, database);
+
     // Init registerer task.
     registerer(
-        database.clone(),
+        app_state.clone(),
         ssal_url.clone(),
         rollup_id.clone(),
         sequencer_id.clone(),
@@ -65,7 +76,7 @@ async fn main() -> Result<(), Error> {
         .route("/send-transaction", post(SendTransaction::handler))
         .route("/sync-transaction", post(SyncTransaction::handler))
         .layer(CorsLayer::permissive())
-        .with_state(database);
+        .with_state(app_state);
 
     // Start the sequencer.
     tracing::info!("Starting the server at {:?}", address);

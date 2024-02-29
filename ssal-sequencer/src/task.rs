@@ -7,16 +7,13 @@ use ssal_core::{
     tracing,
     types::*,
 };
-use ssal_database::Database;
 
-use crate::request::{get_closed_sequencer_set, register};
+use crate::{
+    app_state::AppState,
+    request::{get_closed_sequencer_set, register},
+};
 
-pub fn registerer(
-    database: Database,
-    ssal_url: Url,
-    rollup_id: RollupId,
-    sequencer_id: SequencerId,
-) {
+pub fn registerer(state: AppState, ssal_url: Url, rollup_id: RollupId, sequencer_id: SequencerId) {
     tokio::spawn(async move {
         loop {
             if let Some(block_height) = register(&ssal_url, &rollup_id, &sequencer_id)
@@ -29,7 +26,7 @@ pub fn registerer(
                     &block_height,
                 );
                 leader_poller(
-                    database.clone(),
+                    state.clone(),
                     ssal_url.clone(),
                     rollup_id.clone(),
                     sequencer_id.clone(),
@@ -42,7 +39,7 @@ pub fn registerer(
 }
 
 pub fn leader_poller(
-    database: Database,
+    state: AppState,
     ssal_url: Url,
     rollup_id: RollupId,
     sequencer_id: SequencerId,
@@ -57,7 +54,8 @@ pub fn leader_poller(
             {
                 let block_metadata_key = ("block_metadata", &rollup_id);
                 let sequencer_set_key = ("sequencer_set", &rollup_id, &block_height);
-                match database
+                match state
+                    .database()
                     .get_mut::<(&'static str, &RollupId), BlockMetadata>(&block_metadata_key)
                 {
                     Ok(mut block_metadata) => {
@@ -66,7 +64,7 @@ pub fn leader_poller(
 
                         // Build the current block.
                         block_builder(
-                            database.clone(),
+                            state.clone(),
                             rollup_id.clone(),
                             current_block_height,
                             current_tx_count,
@@ -74,7 +72,10 @@ pub fn leader_poller(
 
                         // Store the sequencer set.
                         let leader_id = sequencer_set.leader().unwrap();
-                        database.put(&sequencer_set_key, &sequencer_set).unwrap();
+                        state
+                            .database()
+                            .put(&sequencer_set_key, &sequencer_set)
+                            .unwrap();
 
                         // Update the block metadata.
                         block_metadata.update(
@@ -88,7 +89,10 @@ pub fn leader_poller(
                         if error.is_none_type() {
                             // Store the sequencer set.
                             let leader_id = sequencer_set.leader().unwrap();
-                            database.put(&sequencer_set_key, &sequencer_set).unwrap();
+                            state
+                                .database()
+                                .put(&sequencer_set_key, &sequencer_set)
+                                .unwrap();
 
                             // Store the block metadata.
                             let block_metadata = BlockMetadata::new(
@@ -96,7 +100,10 @@ pub fn leader_poller(
                                 leader_id == sequencer_id,
                                 leader_id,
                             );
-                            database.put(&block_metadata_key, &block_metadata).unwrap();
+                            state
+                                .database()
+                                .put(&block_metadata_key, &block_metadata)
+                                .unwrap();
                         }
                     }
                 }
@@ -108,7 +115,7 @@ pub fn leader_poller(
 }
 
 pub fn block_builder(
-    database: Database,
+    state: AppState,
     rollup_id: RollupId,
     block_height: BlockHeight,
     tx_count: TransactionOrder,
@@ -117,18 +124,21 @@ pub fn block_builder(
         let block: Vec<RawTransaction> = tx_count
             .iter()
             .map(|tx_order| {
-                let raw_tx: RawTransaction = database
+                let raw_tx: RawTransaction = state
+                    .database()
                     .get(&("raw_tx", &rollup_id, &block_height, &tx_order))
                     .unwrap();
                 raw_tx
             })
             .collect();
-        database
+        state
+            .database()
             .put(&("block", &rollup_id, &block_height), &block)
             .unwrap();
 
         let block_commitment = ssal_commitment::get_block_commitment(block);
-        database
+        state
+            .database()
             .put(
                 &("block_commitment", &rollup_id, &block_height),
                 &block_commitment,

@@ -9,11 +9,13 @@ pub struct GetBlock {
 
 impl GetBlock {
     pub async fn handler(
-        State(state): State<Database>,
+        State(state): State<AppState>,
         Query(parameter): Query<Self>,
     ) -> Result<impl IntoResponse, Error> {
         let block: Vec<RawTransaction> =
-            state.get(&("block", &parameter.rollup_id, &parameter.block_height))?;
+            state
+                .database()
+                .get(&("block", &parameter.rollup_id, &parameter.block_height))?;
         Ok((StatusCode::OK, Json(block)))
     }
 }

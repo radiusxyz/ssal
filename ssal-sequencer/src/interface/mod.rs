@@ -17,5 +17,7 @@ pub mod prelude {
         types::*,
     };
     pub use ssal_database::{Database, Lock};
+
+    pub use crate::app_state::AppState;
 }
 pub use self::{get_block::*, get_block_commitment::*, send_transaction::*, sync_transaction::*};

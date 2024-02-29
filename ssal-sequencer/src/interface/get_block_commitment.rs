@@ -9,10 +9,10 @@ pub struct GetBlockCommitment {
 
 impl GetBlockCommitment {
     pub async fn handler(
-        State(state): State<Database>,
+        State(state): State<AppState>,
         Query(parameter): Query<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let block_commitment: String = state.get(&(
+        let block_commitment: String = state.database().get(&(
             "block_commitment",
             &parameter.rollup_id,
             &parameter.block_height,

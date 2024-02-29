@@ -9,15 +9,16 @@ pub struct SyncTransaction {
 
 impl SyncTransaction {
     pub async fn handler(
-        State(state): State<Database>,
+        State(state): State<AppState>,
         Json(payload): Json<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let mut block_metadata: Lock<BlockMetadata> =
-            state.get_mut(&("block_metadata", &payload.rollup_id))?;
+        let mut block_metadata: Lock<BlockMetadata> = state
+            .database()
+            .get_mut(&("block_metadata", &payload.rollup_id))?;
 
         let block_height = block_metadata.block_height();
         let tx_order = block_metadata.issue_tx_order();
-        state.put(
+        state.database().put(
             &("raw_tx", &payload.rollup_id, &block_height, &tx_order),
             &payload.raw_tx,
         )?;

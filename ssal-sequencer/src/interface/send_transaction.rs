@@ -10,11 +10,12 @@ pub struct SendTransaction {
 
 impl SendTransaction {
     pub async fn handler(
-        State(state): State<Database>,
+        State(state): State<AppState>,
         Json(payload): Json<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let mut block_metadata: Lock<BlockMetadata> =
-            state.get_mut(&("block_metadata", &payload.rollup_id))?;
+        let mut block_metadata: Lock<BlockMetadata> = state
+            .database()
+            .get_mut(&("block_metadata", &payload.rollup_id))?;
 
         if block_metadata.is_leader() {
             let leader_id = block_metadata.leader_id();
@@ -23,7 +24,9 @@ impl SendTransaction {
 
             // Sync the transaction.
             let sequencer_set: SequencerSet =
-                state.get(&("sequencer_set", &payload.rollup_id, &block_height))?;
+                state
+                    .database()
+                    .get(&("sequencer_set", &payload.rollup_id, &block_height))?;
             for follower_id in sequencer_set.iter() {
                 if *follower_id != leader_id {
                     let _ =
@@ -31,7 +34,7 @@ impl SendTransaction {
                 }
             }
 
-            state.put(
+            state.database().put(
                 &("raw_tx", &payload.rollup_id, &block_height, &tx_order),
                 &payload.raw_tx,
             )?;
