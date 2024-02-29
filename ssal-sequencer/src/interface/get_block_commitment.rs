@@ -17,6 +17,6 @@ impl GetBlockCommitment {
             &parameter.rollup_id,
             &parameter.block_height,
         ))?;
-        Ok((StatusCode::OK, Json(block_commitment)))
+        Ok((StatusCode::OK, block_commitment))
     }
 }
