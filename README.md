@@ -1,6 +1,8 @@
 # Walkthrough
 
-## Prerequisites
+## Prerequisites (Ubuntu 22.04 Jammy)
+`sudo apt install build-essential clang libssl-dev -y`
+
 `cargo build --release`
 
 ## SSAL
