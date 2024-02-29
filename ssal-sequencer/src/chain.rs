@@ -9,7 +9,6 @@ use ethers::{
 };
 use ssal_core::{
     error::{Error, WrapError},
-    tracing,
     types::*,
 };
 
