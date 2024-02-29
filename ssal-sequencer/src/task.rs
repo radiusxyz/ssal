@@ -10,6 +10,7 @@ use ssal_core::{
 
 use crate::{
     app_state::AppState,
+    chain::send_block_commitment,
     request::{get_closed_sequencer_set, register},
 };
 
@@ -68,6 +69,7 @@ pub fn leader_poller(
                             rollup_id.clone(),
                             current_block_height,
                             current_tx_count,
+                            block_metadata.is_leader(),
                         );
 
                         // Store the sequencer set.
@@ -119,6 +121,7 @@ pub fn block_builder(
     rollup_id: RollupId,
     block_height: BlockHeight,
     tx_count: TransactionOrder,
+    is_leader: bool,
 ) {
     tokio::spawn(async move {
         let block: Vec<RawTransaction> = tx_count
@@ -144,5 +147,11 @@ pub fn block_builder(
                 &block_commitment,
             )
             .unwrap();
+
+        if is_leader {
+            send_block_commitment(state.client(), &rollup_id, &block_height, &block_commitment)
+                .await
+                .unwrap();
+        }
     });
 }

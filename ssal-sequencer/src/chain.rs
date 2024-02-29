@@ -1,16 +1,22 @@
+use std::{str::FromStr, sync::Arc};
+
 use ethers::{
     core::k256::ecdsa::SigningKey,
     middleware::SignerMiddleware,
     prelude::*,
     providers::{Http, Provider},
-    signers::{LocalWallet, Signer, Wallet},
+    signers::{LocalWallet, Wallet},
 };
-use ssal_core::error::{Error, WrapError};
+use ssal_core::{
+    error::{Error, WrapError},
+    tracing,
+    types::*,
+};
 
 abigen!(
-    IIncredibleSquaringServiceManager,
+    IIncredibleSquaringTaskManager,
     r"[
-        function createNewTask(bytes calldata _commitment, uint32 _blockNumber, uint32 _rollupID, uint32 quorumThresholdPercentage, bytes calldata quorumNumbers) external
+        function createNewTask(bytes calldata commitment, uint32 blockNumber, uint32 rollupID, uint32 quorumThresholdPercentage, bytes calldata quorumNumbers) external
     ]"
 );
 
@@ -23,7 +29,36 @@ pub async fn init_client(
     let wallet: LocalWallet = private_key
         .as_ref()
         .parse::<LocalWallet>()
-        .wrap("Failed to create a wallet")?;
+        .wrap("Failed to create a wallet")?
+        .with_chain_id(Chain::AnvilHardhat);
     let client = SignerMiddleware::new(provider.clone(), wallet.clone());
     Ok(client)
+}
+
+pub async fn send_block_commitment(
+    client: Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>,
+    rollup_id: &RollupId,
+    block_height: &BlockHeight,
+    block_commitment: &Vec<u8>,
+) -> Result<(), Error> {
+    let contract_address = H160::from_str("0x7969c5eD335650692Bc04293B07F5BF2e7A673C0")
+        .wrap("Failed to create a contract address")?;
+    let contract = IIncredibleSquaringTaskManager::new(contract_address, client.clone());
+    let block_commitment_bytes = Bytes::from_iter(block_commitment);
+    let rollup_id_u32 = <RollupId as AsRef<str>>::as_ref(rollup_id)
+        .parse::<u32>()
+        .wrap("Failed to parse RollupId to u32")?;
+
+    contract
+        .create_new_task(
+            block_commitment_bytes,
+            block_height.value() as u32,
+            rollup_id_u32,
+            50,
+            Bytes::from((1 as i32).to_be_bytes()),
+        )
+        .send()
+        .await
+        .wrap("Failed to create a new task")?;
+    Ok(())
 }
