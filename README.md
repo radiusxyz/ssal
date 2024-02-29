@@ -26,4 +26,5 @@ Usage:
 `./target/release/ssal-sequencer "SEQUENCER-ADDRESS" "ROLLUP-ID (UNSIGNED INT)" "SSAL-URL" "CHAIN-URL" "WALLET-PRIVATE-KEY"`
 
 Example:
+
 `./target/release/ssal-sequencer 127.0.0.1:8000 1234 http://127.0.0.1:3000 http://127.0.0.1:9999 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d`
