@@ -28,7 +28,7 @@ Please follow the instructions below to deploy and test. ***The order with which
 
 #### 1. Deploy the local EVM
 ```
-make start-anvil-chain-with-el-and-avs-deployed
+TODO:
 ```
 
 #### 2. Launch a separate terminal and run `ssal` from the cloned repository path.
@@ -132,4 +132,46 @@ At this point, our sequencers are successfully registered at each rollup's seque
 After a successful launch, the client will emit the following log every 200 milliseconds:
 ```
 INFO ssal_client: Some(OrderCommitment { block_height: BlockHeight(282), tx_order: TransactionOrder(23) })
+```
+
+#### 6. Query using a web browser.
+Now everything is up and running, we can query things using a web browser.
+
+Query the block:
+```
+# Usage:
+"SEQUENCER-URL"/get-block?rollup_id="ROLLUP-ID"&block_height="BLOCK-HEIGHT"
+
+# Examples:
+// Get the block with height = 48 for Rollup ID = 1 from the sequencer listening to port 8001.
+http://127.0.0.1:8001/get-block?rollup_id=1&block_height=50
+
+// Get the block with height = 96 for Rollup ID = 2 from the seqencer listening to port 8003.
+http://127.0.0.1:8003/get-block?rollup_id=2&block_height=96
+```
+
+Query the block commitment:
+```
+# Usage:
+"SEQUENCER-URL"/get-block-commitment?rollup_id="ROLLUP-ID"&block_height="BLOCK-HEIGHT"
+
+# Examples:
+// Get the block commitment of the block with height = 50 for Rollup ID = 1 from the sequencer listening to port 8001.
+http://127.0.0.1:8001/get-block-commitment?rollup_id=1&block_height=50
+
+// Get the block commitment of the block with height = 96 for Rollup ID = 2 from the sequencer listening to port 8003.
+http://127.0.0.1:8003/get-block-commitment?rollup_id=2&block_height=96
+```
+
+Query the sequencer set:
+```
+# Usage:
+"SSAL-URL"/get-closed-sequencer-set?rollup_id="ROLLUP-ID"&block_height="BLOCK-HEIGHT"
+
+# Examples:
+// Get the sequencer set for the block with height = 48 for Rollup ID = 1.
+http://127.0.0.1:3000/get-closed-sequencer-set?rollup_id=1&block_height=48
+
+// Get the sequencer set for the block with height = 96 for Rollup ID = 2.
+http://127.0.0.1:3000/get-closed-sequencer-set?rollup_id=2&block_height=96
 ```
