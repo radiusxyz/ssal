@@ -28,7 +28,7 @@ Please follow the instructions below to deploy and test. ***The order with which
 
 #### 1. Deploy the local EVM
 ```
-TODO:
+make start-anvil-chain-with-el-and-avs-deployed
 ```
 
 #### 2. Launch a separate terminal and run `ssal` from the cloned repository path.
