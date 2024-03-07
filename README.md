@@ -9,7 +9,15 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 3. Install dependencies
 ```
+# Install libraries.
 sudo apt install build-essential clang libssl-dev -y
+
+# Install foundry
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+
+# Install zap-pretty
+go install github.com/maoueh/zap-pretty@latest
 ```
 
 4. Clone the SSAL repositories
@@ -27,8 +35,21 @@ cargo build --release
 Please follow the instructions below to deploy and test. ***The order with which you run the nodes matters.***
 
 #### 1. Deploy the local EVM
+We will start off by deploying Anvil, an aggregator and an operator whose endpoints are configurable in `config-files/operator.anvil.yaml`.
+
+Start Anvil:
 ```
-TODO:
+make start-anvil-chain-with-el-and-avs-deployed
+```
+
+Start the aggregator:
+```
+make start-aggregator
+```
+
+Start the operator:
+```
+make cli-setup-operator && make start-operator
 ```
 
 #### 2. Launch a separate terminal and run `ssal` from the cloned repository path.
@@ -100,13 +121,13 @@ We will launch two sequencers for each rollup we have previously deployed.
 ./target/release/ssal-sequencer 127.0.0.1:8001 1 http://127.0.0.1:3000 http://127.0.0.1:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
 
 // The second sequencer for Rollup ID = 1
-./target/release/ssal-sequencer 127.0.0.1:8002 1 http://127.0.0.1:3000 http://127.0.0.1:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+./target/release/ssal-sequencer 127.0.0.1:8002 1 http://127.0.0.1:3000 http://127.0.0.1:8545 5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
 
 // The third sequencer for Rollup ID = 2
-./target/release/ssal-sequencer 127.0.0.1:8003 2 http://127.0.0.1:3000 http://127.0.0.1:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+./target/release/ssal-sequencer 127.0.0.1:8003 2 http://127.0.0.1:3000 http://127.0.0.1:8545 7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6
 
 // The fourth sequencer for Rollup ID = 2
-./target/release/ssal-sequencer 127.0.0.1:8004 2 http://127.0.0.1:3000 http://127.0.0.1:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+./target/release/ssal-sequencer 127.0.0.1:8004 2 http://127.0.0.1:3000 http://127.0.0.1:8545 47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a
 ```
 
 After a successful launch, the following log will show up:
