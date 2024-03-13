@@ -37,6 +37,11 @@ Please follow the instructions below to deploy and test. ***The order with which
 #### 1. Deploy the local EVM
 We will start off by deploying Anvil, an aggregator and an operator whose endpoints are configurable in `config-files/operator.anvil.yaml`.
 
+Change the directory:
+```
+cd incredible-squaring-avs
+```
+
 Start Anvil:
 ```
 make start-anvil-chain-with-el-and-avs-deployed
