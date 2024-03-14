@@ -40,12 +40,25 @@ In order to run the operator we need to change configurations at:
 ssal/incredible-squaring-avs/config-files/operator.anvil.yaml
 ```
 
-Open the file with the editor of your choice and change `eth_rpc_url`, `eth_ws_url` and `aggregator_server_ip_port_address` to followings:
+***Caveat***
+`operator.anvil.yaml` file needs to change if the operator is already registered to the aggregator.
+
+**Cold Start**
+Open the file with the editor of your choice and change `eth_rpc_url`, `eth_ws_url`, `aggregator_server_ip_port_address` and `register_operator_on_startup` to followings:
 ```
 eth_rpc_url: http://3.38.183.158:8545
 eth_ws_url: ws://3.38.183.158:8545
 
 aggregator_server_ip_port_address: 3.38.183.158:8090
+
+register_operator_on_startup: true
+```
+
+**Re-run**
+When a validator wants to re-run the operator after the successful registration of
+the operator, open the file and change the `register_operator_on_startup` to the following:
+```
+register_operator_on_startup: false
 ```
 
 Change the directory to `/ssal/incredible-squaring-avs` and run the following command:
