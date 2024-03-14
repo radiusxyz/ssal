@@ -23,9 +23,7 @@ async fn main() -> Result<(), Error> {
     let env_variables: Vec<String> = env::args().skip(1).collect();
 
     // Initialize the listener socket.
-    let address = env_variables
-        .get(0)
-        .wrap("Provide the sequencer address to bind to")?;
+    let address = "0.0.0.0:8000";
     let listener = TcpListener::bind(address)
         .await
         .wrap(format!("Failed to bind to {:?}", address))?;
@@ -37,25 +35,23 @@ async fn main() -> Result<(), Error> {
         .join(format!("databases/ssal-sequencer/{}", sequencer_id));
     let database = Database::new(database_path)?;
 
+    let ssal_url: Url = env_variables
+        .get(0)
+        .wrap("Provide SSAL URL to connect to")?
+        .as_str()
+        .try_into()
+        .wrap("Failed to parse SSAL environment variable String into URL")?;
     let rollup_id: RollupId = env_variables
         .get(1)
         .wrap("Provide the target rollup ID")?
         .as_str()
         .into();
-
-    let ssal_url: Url = env_variables
-        .get(2)
-        .wrap("Provide SSAL URL to connect to")?
-        .as_str()
-        .try_into()
-        .wrap("Failed to parse SSAL environment variable String into URL")?;
-
     let chain_url = env_variables
-        .get(3)
+        .get(2)
         .wrap("Provide the chain URL")?
         .to_string();
     let wallet_private_key = env_variables
-        .get(4)
+        .get(3)
         .wrap("Provide the private key for the wallet")?;
     let client = init_client(&chain_url, &wallet_private_key).await?;
 
