@@ -119,20 +119,14 @@ Now, let's move onto launching our sequencers and registering them at our rollup
 We will launch two sequencers for each rollup we have previously deployed.
 ```
 # Usage:
-./target/release/ssal-sequencer "SEQUENCER-ADDRESS" "ROLLUP-ID" "SSAL-URL" "CHAIN-URL" "WALLET-PRIVATE-KEY"
+./target/release/ssal-sequencer "SSAL-URL" "ROLLUP-ID" "CHAIN-URL" "WALLET-PRIVATE-KEY"
 
 # Examples
-// The first sequencer for Rollup ID = 1
-./target/release/ssal-sequencer 127.0.0.1:8001 1 http://127.0.0.1:3000 http://127.0.0.1:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+// Run the sequencer for Rollup ID = 1
+./target/release/ssal-sequencer http://127.0.0.1:3000 1 http://127.0.0.1:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
 
-// The second sequencer for Rollup ID = 1
-./target/release/ssal-sequencer 127.0.0.1:8002 1 http://127.0.0.1:3000 http://127.0.0.1:8545 5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
-
-// The third sequencer for Rollup ID = 2
-./target/release/ssal-sequencer 127.0.0.1:8003 2 http://127.0.0.1:3000 http://127.0.0.1:8545 7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6
-
-// The fourth sequencer for Rollup ID = 2
-./target/release/ssal-sequencer 127.0.0.1:8004 2 http://127.0.0.1:3000 http://127.0.0.1:8545 47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a
+// Run the sequencer for Rollup ID = 2
+./target/release/ssal-sequencer http://127.0.0.1:3000 2 http://127.0.0.1:8545 7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6
 ```
 
 After a successful launch, the following log will show up:

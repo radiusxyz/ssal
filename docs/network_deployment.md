@@ -46,7 +46,7 @@ ssal/incredible-squaring-avs/config-files/operator.anvil.yaml
 
 **Cold Start**
 
-Open the file with the editor of your choice and change `eth_rpc_url`, `eth_ws_url`, `aggregator_server_ip_port_address` and `register_operator_on_startup` to followings:
+Open the file with the editor of your choice and change `eth_rpc_url`, `eth_ws_url`,`aggregator_server_ip_port_address` and `register_operator_on_startup` to followings:
 ```
 eth_rpc_url: http://3.38.183.158:8545
 eth_ws_url: ws://3.38.183.158:8545
@@ -79,14 +79,14 @@ Change the directory to `/ssal` and run one of the following examples:
 ./target/release/ssal-sequencer "SEQUENCER-ADDRESS" "ROLLUP-ID" "SSAL-URL" "CHAIN-URL" "WALLET-PRIVATE-KEY"
 
 # Examples
-// The sequencer for Rollup ID = 1, listening to 0.0.0.0:8001
-./target/release/ssal-sequencer 0.0.0.0:8001 1 http://3.38.183.158:3000 http://3.38.183.158:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+// Run the sequencer for Rollup ID = 1
+./target/release/ssal-sequencer http://3.38.183.158:3000 1 http://3.38.183.158:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
 
-// The sequencer for Rollup ID = 2, listening to 0.0.0.0:8002
-./target/release/ssal-sequencer 0.0.0.0:8002 2 http://3.38.183.158:3000 http://3.38.183.158:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+// Run the sequencer for Rollup ID = 2
+./target/release/ssal-sequencer http://3.38.183.158:3000 2 http://3.38.183.158:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
 
-// The sequencer for Rollup ID = 3, listening to 0.0.0.0:8003
-./target/release/ssal-sequencer 0.0.0.0:8003 3 http://3.38.183.158:3000 http://3.38.183.158:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+// Run the sequencer for Rollup ID = 3
+./target/release/ssal-sequencer http://3.38.183.158:3000 3 http://3.38.183.158:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
 ```
 
 After a successful launch, the following log will show up:
