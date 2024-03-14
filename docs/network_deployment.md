@@ -40,7 +40,7 @@ Please follow the instructions below in order.
 #### 1. Run the operator
 In order to run the operator we need to change configurations at:
 ```
-ssal/incredible-squaring-avs/config-files/operator.anvil.yaml
+ssal/ssal-avs/config-files/operator.anvil.yaml
 ```
 
 ***CAVEAT***
@@ -67,7 +67,7 @@ the operator, open the file and change the `register_operator_on_startup` to the
 register_operator_on_startup: false
 ```
 
-Change the directory to `/ssal/incredible-squaring-avs` and run the following command:
+Change the directory to `/ssal/ssal-avs` and run the following command:
 ```
 make start-operator
 ```

@@ -39,7 +39,7 @@ We will start off by deploying Anvil, an aggregator and an operator whose endpoi
 
 Change the directory:
 ```
-cd incredible-squaring-avs
+cd ssal-avs
 ```
 
 Start Anvil:
