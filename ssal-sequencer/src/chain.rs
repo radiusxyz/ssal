@@ -40,7 +40,7 @@ pub async fn send_block_commitment(
     block_height: &BlockHeight,
     block_commitment: &Vec<u8>,
 ) -> Result<(), Error> {
-    let contract_address = H160::from_str("0x7969c5eD335650692Bc04293B07F5BF2e7A673C0")
+    let contract_address = H160::from_str("0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB")
         .wrap("Failed to create a contract address")?;
     let contract = IIncredibleSquaringTaskManager::new(contract_address, client.clone());
     let block_commitment_bytes = Bytes::from_iter(block_commitment);
