@@ -1,5 +1,5 @@
 # Overview
-![Alt text](infra_diagram.png)
+![Alt text](infrastructure_diagram.png)
 
 # Walkthrough
 
