@@ -1,5 +1,5 @@
 # Overview
-![Alt text](image.png)
+![Alt text](infra_diagram.png)
 
 # Walkthrough
 
