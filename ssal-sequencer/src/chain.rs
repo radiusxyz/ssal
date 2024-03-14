@@ -53,8 +53,8 @@ pub async fn send_block_commitment(
             block_commitment_bytes,
             block_height.value() as u32,
             rollup_id_u32,
-            50,
-            Bytes::from((1 as i32).to_be_bytes()),
+            100,
+            Bytes::from((0 as i32).to_be_bytes()),
         )
         .send()
         .await
