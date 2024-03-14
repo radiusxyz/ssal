@@ -152,6 +152,12 @@ pub fn block_builder(
             send_block_commitment(state.client(), &rollup_id, &block_height, &block_commitment)
                 .await
                 .unwrap();
+
+            tracing::info!(
+                "[Leader]: Successfully sent block commitment to the contract for {:?}: {:?}",
+                rollup_id,
+                block_height,
+            );
         }
     });
 }
