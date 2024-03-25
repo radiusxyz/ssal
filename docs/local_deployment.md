@@ -10,7 +10,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 3. Install dependencies
 ```
 # Install libraries.
-sudo apt install build-essential clang libssl-dev -y
+sudo apt install build-essential clang libssl-dev pkg-config -y
 
 # Install foundry
 curl -L https://foundry.paradigm.xyz | bash
