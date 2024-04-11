@@ -3,8 +3,8 @@ use super::prelude::*;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(crate = "ssal_core::serde")]
 pub struct SyncTransaction {
+    leader_id: SequencerId,
     rollup_id: RollupId,
-    sequencer_id: SequencerId,
     raw_tx: RawTransaction,
 }
 
@@ -18,7 +18,7 @@ impl SyncTransaction {
             .get_mut(&("block_metadata", &payload.rollup_id))?;
 
         // SSAL-009
-        if block_metadata.leader_id() == payload.sequencer_id {
+        if block_metadata.leader_id() == payload.leader_id {
             let block_height = block_metadata.block_height();
             let tx_order = block_metadata.issue_tx_order();
             state.database().put(
@@ -29,7 +29,7 @@ impl SyncTransaction {
         } else {
             tracing::error!(
                 "Received transaction from the invalid leader ID: {}",
-                payload.sequencer_id
+                payload.leader_id
             );
         }
 

@@ -34,11 +34,22 @@ impl SendTransaction {
                     .database()
                     .get(&("sequencer_set", &payload.rollup_id, &block_height))?;
 
-            // TODO: join for more than quorum.
-            for follower_id in sequencer_set.iter() {
-                if *follower_id != leader_id {
-                    let _ =
-                        sync_transaction(follower_id, &payload.rollup_id, &payload.raw_tx).await;
+            // SSAL-009 & SSAL-010
+            let handles: Vec<JoinHandle<Result<(), Error>>> = sequencer_set
+                .iter()
+                .map(|follower_id| {
+                    tokio::spawn(sync_transaction(
+                        follower_id.clone(),
+                        leader_id.clone(),
+                        payload.rollup_id.clone(),
+                        payload.raw_tx.clone(),
+                    ))
+                })
+                .collect();
+
+            for handle in handles {
+                if let Err(error) = handle.await {
+                    tracing::error!("{}", error);
                 }
             }
 
