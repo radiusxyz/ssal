@@ -56,7 +56,6 @@ impl std::fmt::Display for Error {
             ErrorKind::PlainString => write!(f, "{:?}", self.context),
             ErrorKind::NoneType => write!(f, "{} ({:?})", self.source, self.context),
         }
-        // write!(f, "{:?} ({})", self.context, self.source)
     }
 }
 
