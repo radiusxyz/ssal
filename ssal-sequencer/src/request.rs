@@ -1,4 +1,4 @@
-use std::{any, collections::HashMap, str::FromStr};
+use std::{any, collections::HashMap, str::FromStr, time::Duration};
 
 use ssal_core::{
     error::{Error, WrapError},
@@ -121,6 +121,7 @@ pub async fn sync_transaction(
 
     Client::new()
         .post(url)
+        .timeout(Duration::from_secs(3))
         .json(&payload)
         .send()
         .await

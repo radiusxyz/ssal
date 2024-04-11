@@ -2,10 +2,10 @@ pub mod kzg;
 pub mod param;
 pub mod vc;
 
-use ark_bn254::Bn254;
+pub use ark_bn254::Bn254;
 use ark_ec::PairingEngine;
 use ark_ff::FromBytes;
-use ark_std::test_rng;
+use ark_std::rand::{rngs::StdRng, SeedableRng};
 use param::{ProverParam, StructuredReferenceString};
 use sha2::{Digest, Sha224};
 use ssal_core::types::RawTransaction;
@@ -39,8 +39,8 @@ pub trait CommitmentScheme {
     fn to_string(&self) -> String;
 }
 
-pub fn get_block_commitment(block: Vec<RawTransaction>) -> Vec<u8> {
-    let mut rng = test_rng();
+pub fn get_block_commitment(block: Vec<RawTransaction>, seed: [u8; 32]) -> Vec<u8> {
+    let mut rng = StdRng::from_seed(seed);
     let srs = StructuredReferenceString::<Bn254, 128>::new_srs_for_testing(&mut rng);
     let prover_param: ProverParam<Bn254, 128> = (&srs).into();
     let message: Vec<<Bn254 as PairingEngine>::Fr> = block

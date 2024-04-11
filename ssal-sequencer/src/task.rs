@@ -70,6 +70,7 @@ pub fn leader_poller(
                             current_block_height,
                             current_tx_count,
                             block_metadata.is_leader(),
+                            block_metadata.seed(),
                         );
 
                         // Store the sequencer set.
@@ -84,6 +85,7 @@ pub fn leader_poller(
                             block_height.clone(),
                             leader_id == sequencer_id,
                             leader_id,
+                            sequencer_set.seed(),
                         );
                         block_metadata.commit().unwrap();
                     }
@@ -101,6 +103,7 @@ pub fn leader_poller(
                                 block_height.clone(),
                                 leader_id == sequencer_id,
                                 leader_id,
+                                sequencer_set.seed(),
                             );
                             state
                                 .database()
@@ -122,6 +125,7 @@ pub fn block_builder(
     block_height: BlockHeight,
     tx_count: TransactionOrder,
     is_leader: bool,
+    seed: [u8; 32],
 ) {
     tokio::spawn(async move {
         let block: Vec<RawTransaction> = tx_count
@@ -139,7 +143,7 @@ pub fn block_builder(
             .put(&("block", &rollup_id, &block_height), &block)
             .unwrap();
 
-        let block_commitment = ssal_commitment::get_block_commitment(block);
+        let block_commitment = ssal_commitment::get_block_commitment(block, seed);
         state
             .database()
             .put(

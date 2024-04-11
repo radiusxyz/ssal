@@ -20,13 +20,20 @@ impl SendTransaction {
         if block_metadata.is_leader() {
             let leader_id = block_metadata.leader_id();
             let block_height = block_metadata.block_height();
-            let tx_order = block_metadata.issue_tx_order();
+
+            if block_metadata.tx_count() == TransactionOrder::from(128) {
+                return Err(Error::from(
+                    "Cannot include more transactions in the current block",
+                ));
+            }
 
             // Sync the transaction.
             let sequencer_set: SequencerSet =
                 state
                     .database()
                     .get(&("sequencer_set", &payload.rollup_id, &block_height))?;
+
+            // TODO: join for more than quorum.
             for follower_id in sequencer_set.iter() {
                 if *follower_id != leader_id {
                     let _ =
@@ -34,6 +41,7 @@ impl SendTransaction {
                 }
             }
 
+            let tx_order = block_metadata.issue_tx_order();
             state.database().put(
                 &("raw_tx", &payload.rollup_id, &block_height, &tx_order),
                 &payload.raw_tx,
