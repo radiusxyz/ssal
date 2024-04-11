@@ -7,6 +7,7 @@ use ssal_core::{
         Router,
     },
     error::{Error, WrapError},
+    public_ip,
     reqwest::Url,
     tokio::{self, net::TcpListener},
     tower_http::cors::CorsLayer,
@@ -23,11 +24,17 @@ async fn main() -> Result<(), Error> {
     let env_variables: Vec<String> = env::args().skip(1).collect();
 
     // Initialize the listener socket.
-    let address = "0.0.0.0:8000";
-    let listener = TcpListener::bind(address)
+    let listener = TcpListener::bind("0.0.0.0:8000")
         .await
-        .wrap(format!("Failed to bind to {:?}", address))?;
-    let sequencer_id: SequencerId = address.into();
+        .wrap("Failed to bind to 0.0.0.0:8000")?;
+
+    // SSAL-006
+    let mut public_address = public_ip::addr()
+        .await
+        .wrap("Failed to get the public IP")?
+        .to_string();
+    public_address.push_str(":8000");
+    let sequencer_id = SequencerId::from(&public_address);
 
     // Initialize the database.
     let database_path = env::current_dir()
@@ -75,7 +82,7 @@ async fn main() -> Result<(), Error> {
         .with_state(app_state);
 
     // Start the sequencer.
-    tracing::info!("Starting the server at {:?}", address);
+    tracing::info!("Starting the server at {:?}", sequencer_id);
     axum::serve(listener, app)
         .await
         .wrap("Failed to start the axum server")?;
