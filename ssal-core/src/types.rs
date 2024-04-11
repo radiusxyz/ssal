@@ -164,12 +164,15 @@ pub struct SequencerSet {
 }
 
 impl SequencerSet {
-    pub fn new(block_height: BlockHeight, seed: [u8; 32]) -> Self {
+    pub fn new(block_height: BlockHeight) -> Self {
         Self {
             block_height,
             set: HashSet::default(),
             leader: None,
-            seed,
+            seed: [
+                1, 0, 0, 0, 23, 0, 0, 0, 200, 1, 0, 0, 210, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0,
+            ],
         }
     }
 
@@ -312,37 +315,23 @@ pub struct BlockMetadata {
     is_leader: bool,
     leader_id: SequencerId,
     tx_order: TransactionOrder,
-    seed: [u8; 32],
 }
 
 impl BlockMetadata {
-    pub fn new(
-        block_height: BlockHeight,
-        is_leader: bool,
-        leader_id: SequencerId,
-        seed: [u8; 32],
-    ) -> Self {
+    pub fn new(block_height: BlockHeight, is_leader: bool, leader_id: SequencerId) -> Self {
         Self {
             block_height,
             is_leader,
             leader_id,
             tx_order: TransactionOrder::default(),
-            seed,
         }
     }
 
-    pub fn update(
-        &mut self,
-        block_height: BlockHeight,
-        is_leader: bool,
-        leader_id: SequencerId,
-        seed: [u8; 32],
-    ) {
+    pub fn update(&mut self, block_height: BlockHeight, is_leader: bool, leader_id: SequencerId) {
         self.block_height = block_height;
         self.is_leader = is_leader;
         self.leader_id = leader_id;
         self.tx_order = TransactionOrder::default();
-        self.seed = seed;
     }
 
     pub fn block_height(&self) -> BlockHeight {
@@ -365,9 +354,5 @@ impl BlockMetadata {
 
     pub fn tx_count(&self) -> TransactionOrder {
         self.tx_order.clone()
-    }
-
-    pub fn seed(&self) -> [u8; 32] {
-        self.seed
     }
 }

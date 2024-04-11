@@ -70,7 +70,7 @@ pub fn leader_poller(
                             current_block_height,
                             current_tx_count,
                             block_metadata.is_leader(),
-                            block_metadata.seed(),
+                            sequencer_set.seed(),
                         );
 
                         // Store the sequencer set.
@@ -85,7 +85,6 @@ pub fn leader_poller(
                             block_height.clone(),
                             leader_id == sequencer_id,
                             leader_id,
-                            sequencer_set.seed(),
                         );
                         block_metadata.commit().unwrap();
                     }
@@ -103,7 +102,6 @@ pub fn leader_poller(
                                 block_height.clone(),
                                 leader_id == sequencer_id,
                                 leader_id,
-                                sequencer_set.seed(),
                             );
                             state
                                 .database()
