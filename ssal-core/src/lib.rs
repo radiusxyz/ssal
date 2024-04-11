@@ -8,6 +8,7 @@ pub use rocksdb;
 pub use serde;
 pub use serde_json;
 pub use tokio;
+pub use toml;
 pub use tower_http;
 pub use tracing;
 pub use tracing_subscriber;
