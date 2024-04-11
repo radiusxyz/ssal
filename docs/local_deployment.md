@@ -117,7 +117,7 @@ Now, let's move onto launching our sequencers and registering them at our rollup
 
 #### 4. Launch a separate terminal and run `ssal-sequencer`
 We will launch a new sequencer for the rollup we have deployed.
-In order to launch multiple sequencers over the network, please refer to [Network Deployment Guide](docs/network_deployment.md).
+In order to launch multiple sequencers over the network, please refer to [Network Deployment Guide](../docs/network_deployment.md).
 ```
 # Usage:
 ./target/release/ssal-sequencer "SSAL-URL" "ROLLUP-ID" "CHAIN-URL" "WALLET-PRIVATE-KEY"
