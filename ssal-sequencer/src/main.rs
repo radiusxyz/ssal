@@ -15,52 +15,55 @@ use ssal_core::{
     types::*,
 };
 use ssal_database::Database;
-use ssal_sequencer::{app_state::AppState, chain::init_client, interface::*, task::registerer};
+use ssal_sequencer::{
+    app_state::AppState, chain::init_client, config::Config, interface::*, task::registerer,
+};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Error> {
     tracing_subscriber::fmt().init();
 
-    let env_variables: Vec<String> = env::args().skip(1).collect();
+    // SSAL-004
+    let config_path = env::current_dir()
+        .wrap("Failed to get the current directory")?
+        .join("configs/ssal-sequencer.toml");
+    tracing::info!("{:?}", config_path);
+    let config = Config::from_path(config_path)?;
+    let ssal_url: Url = config
+        .ssal_url
+        .as_str()
+        .try_into()
+        .wrap("Failed to parse SSAL environment variable String into URL")?;
+    let rollup_id: RollupId = config.rollup_id.as_str().into();
+    let chain_url = config.chain_url;
+    let wallet_private_key = config.wallet_private_key;
+    let client = init_client(&chain_url, &wallet_private_key).await?;
 
     // Initialize the listener socket.
     let listener = TcpListener::bind("0.0.0.0:8000")
         .await
         .wrap("Failed to bind to 0.0.0.0:8000")?;
 
-    // SSAL-006
-    let mut public_address = public_ip::addr()
-        .await
-        .wrap("Failed to get the public IP")?
-        .to_string();
-    public_address.push_str(":8000");
-    let sequencer_id = SequencerId::from(&public_address);
+    let sequencer_id = match config.is_local_deployment {
+        true => SequencerId::from("0.0.0.0:8000"),
+        false => {
+            // SSAL-006
+            // Assuming the port-forwarded setup
+            let mut public_address = public_ip::addr()
+                .await
+                .wrap("Failed to get the public IP")?
+                .to_string();
+            public_address.push_str(":8000");
+            SequencerId::from(&public_address)
+        }
+    };
+    tracing::info!("Sequencer ID: {}", sequencer_id);
 
     // Initialize the database.
     let database_path = env::current_dir()
         .wrap("Failed to get the current directory")?
         .join(format!("databases/ssal-sequencer/{}", sequencer_id));
     let database = Database::new(database_path)?;
-
-    let ssal_url: Url = env_variables
-        .get(0)
-        .wrap("Provide SSAL URL to connect to")?
-        .as_str()
-        .try_into()
-        .wrap("Failed to parse SSAL environment variable String into URL")?;
-    let rollup_id: RollupId = env_variables
-        .get(1)
-        .wrap("Provide the target rollup ID")?
-        .as_str()
-        .into();
-    let chain_url = env_variables
-        .get(2)
-        .wrap("Provide the chain URL")?
-        .to_string();
-    let wallet_private_key = env_variables
-        .get(3)
-        .wrap("Provide the private key for the wallet")?;
-    let client = init_client(&chain_url, &wallet_private_key).await?;
 
     let app_state = AppState::new(client, database);
 
