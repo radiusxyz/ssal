@@ -25,6 +25,11 @@ impl SyncTransaction {
                 &payload.raw_tx,
             )?;
             block_metadata.commit()?;
+        } else {
+            tracing::error!(
+                "Received transaction from the invalid leader ID: {}",
+                payload.sequencer_id
+            );
         }
 
         Ok((StatusCode::OK, ()))
