@@ -115,8 +115,9 @@ After a successful run, a rollup will close the block every 5 seconds. However, 
 
 Now, let's move onto launching our sequencers and registering them at our rollups.
 
-#### 4. Launch a separate terminal and run `ssal-sequencer` 
-We will launch two sequencers for each rollup we have previously deployed.
+#### 4. Launch a separate terminal and run `ssal-sequencer`
+We will launch a new sequencer for the rollup we have deployed.
+In order to launch multiple sequencers over the network, please refer to [Network Deployment Guide](docs/network_deployment.md).
 ```
 # Usage:
 ./target/release/ssal-sequencer "SSAL-URL" "ROLLUP-ID" "CHAIN-URL" "WALLET-PRIVATE-KEY"
@@ -134,7 +135,7 @@ After a successful launch, the following log will show up:
 INFO ssal_sequencer::task: [RegisterSequencer]: Successfully registered for RollupId("1"): BlockHeight(192)
 ```
 
-At this point, our sequencers are successfully registered at each rollup's sequencer pool and randomly become a leader to build a block. Because we are not sending any transaction to the sequencer, the block is empty now. Let's move onto launching test clients to send transactions to be included in our rollups.
+At this point, our sequencer is successfully registered at each rollup's sequencer pool and randomly become a leader to build a block. Because we are not sending any transaction to the sequencer, the block is empty now. Let's move onto launching a test client to send transactions to be included in our rollups.
 
 #### 5. Launch a separate terminal and start `ssal-client`
 ```

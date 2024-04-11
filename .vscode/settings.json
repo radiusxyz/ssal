@@ -1,0 +1,7 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./ssal-sequencer/Cargo.toml",
+        "./ssal-sequencer/Cargo.toml",
+        "./ssal-sequencer/Cargo.toml"
+    ]
+}
