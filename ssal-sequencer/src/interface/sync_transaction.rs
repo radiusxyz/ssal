@@ -17,6 +17,7 @@ impl SyncTransaction {
             .database()
             .get_mut(&("block_metadata", &payload.rollup_id))?;
 
+        // SSAL-009
         if block_metadata.leader_id() == payload.sequencer_id {
             let block_height = block_metadata.block_height();
             let tx_order = block_metadata.issue_tx_order();
