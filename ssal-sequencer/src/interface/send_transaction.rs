@@ -21,6 +21,7 @@ impl SendTransaction {
             let leader_id = block_metadata.leader_id();
             let block_height = block_metadata.block_height();
 
+            // SSAL-002
             if block_metadata.tx_count() == TransactionOrder::from(128) {
                 return Err(Error::from(
                     "Cannot include more transactions in the current block",
