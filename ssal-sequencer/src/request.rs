@@ -107,7 +107,6 @@ pub async fn forward_transaction(
 
 pub async fn sync_transaction(
     follower_id: SequencerId,
-    leader_id: SequencerId,
     rollup_id: RollupId,
     raw_tx: RawTransaction,
 ) -> Result<(), Error> {
@@ -117,8 +116,6 @@ pub async fn sync_transaction(
         .wrap("[SyncTransaction]: Failed to parse into URL (path)")?;
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
-    // SSAL-009
-    payload.insert("leader_id", leader_id.to_string());
     payload.insert("rollup_id", rollup_id.to_string());
     payload.insert("raw_tx", raw_tx.to_string());
 

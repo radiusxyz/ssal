@@ -34,35 +34,49 @@ impl SendTransaction {
                     .database()
                     .get(&("sequencer_set", &payload.rollup_id, &block_height))?;
 
-            // SSAL-009 & SSAL-010
+            // SSAL-010
             let handles: Vec<JoinHandle<Result<(), Error>>> = sequencer_set
                 .iter()
-                .map(|follower_id| {
-                    tokio::spawn(sync_transaction(
-                        follower_id.clone(),
-                        leader_id.clone(),
-                        payload.rollup_id.clone(),
-                        payload.raw_tx.clone(),
-                    ))
+                .filter_map(|follower_id| {
+                    if *follower_id != leader_id {
+                        let handle = tokio::spawn(sync_transaction(
+                            follower_id.clone(),
+                            payload.rollup_id.clone(),
+                            payload.raw_tx.clone(),
+                        ));
+                        Some(handle)
+                    } else {
+                        None
+                    }
                 })
                 .collect();
 
+            let quorum = handles.len();
+            let mut acks: usize = 0;
             for handle in handles {
                 if let Err(error) = handle.await {
                     tracing::error!("{}", error);
+                } else {
+                    acks += 1;
                 }
             }
 
-            let tx_order = block_metadata.issue_tx_order();
-            state.database().put(
-                &("raw_tx", &payload.rollup_id, &block_height, &tx_order),
-                &payload.raw_tx,
-            )?;
-            block_metadata.commit()?;
+            if acks == quorum {
+                let tx_order = block_metadata.issue_tx_order();
+                state.database().put(
+                    &("raw_tx", &payload.rollup_id, &block_height, &tx_order),
+                    &payload.raw_tx,
+                )?;
+                block_metadata.commit()?;
 
-            // Return the order commitment.
-            let order_commitment = OrderCommitment::new(block_height, tx_order);
-            Ok((StatusCode::OK, Json(order_commitment)))
+                // Return the order commitment.
+                let order_commitment = OrderCommitment::new(block_height, tx_order);
+                Ok((StatusCode::OK, Json(order_commitment)))
+            } else {
+                Err(Error::from(
+                    "Failed to issue an order commitment due to a follower being unresponsive",
+                ))
+            }
         } else {
             let leader_id = block_metadata.leader_id();
             drop(block_metadata);
