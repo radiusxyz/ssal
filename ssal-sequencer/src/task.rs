@@ -70,6 +70,7 @@ pub fn leader_poller(
                             current_block_height,
                             current_tx_count,
                             block_metadata.is_leader(),
+                            // SSAL-001
                             sequencer_set.seed(),
                         );
 

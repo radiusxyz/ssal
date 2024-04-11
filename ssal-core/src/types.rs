@@ -169,6 +169,7 @@ impl SequencerSet {
             block_height,
             set: HashSet::default(),
             leader: None,
+            // SSAL-001
             seed: [
                 1, 0, 0, 0, 23, 0, 0, 0, 200, 1, 0, 0, 210, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0,
