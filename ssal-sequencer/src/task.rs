@@ -7,6 +7,7 @@ use ssal_core::{
     tracing,
     types::*,
 };
+use ssal_database::Lock;
 
 use crate::{
     app_state::AppState,
@@ -53,66 +54,29 @@ pub fn leader_poller(
                     .await
                     .unwrap()
             {
-                let block_metadata_key = ("block_metadata", &rollup_id);
+                let database = state.database();
+                let leader_id = sequencer_set.leader().unwrap();
+
+                // Store the sequencer set.
                 let sequencer_set_key = ("sequencer_set", &rollup_id, &block_height);
-                match state
-                    .database()
-                    .get_mut::<(&'static str, &RollupId), BlockMetadata>(&block_metadata_key)
-                {
-                    Ok(mut block_metadata) => {
-                        let current_block_height = block_metadata.block_height();
-                        let current_tx_count = block_metadata.tx_count();
+                database.put(&sequencer_set_key, &sequencer_set).unwrap();
 
-                        // Build the current block.
-                        block_builder(
-                            state.clone(),
-                            rollup_id.clone(),
-                            current_block_height,
-                            current_tx_count,
-                            block_metadata.is_leader(),
-                            // SSAL-001
-                            sequencer_set.seed(),
-                        );
+                // Store the block metadata.
+                let block_metadata_key = ("block_metadata", &rollup_id, &block_height);
+                let block_metadata = BlockMetadata::new(leader_id == sequencer_id);
+                database.put(&block_metadata_key, &block_metadata).unwrap();
 
-                        // Store the sequencer set.
-                        let leader_id = sequencer_set.leader().unwrap();
-                        state
-                            .database()
-                            .put(&sequencer_set_key, &sequencer_set)
-                            .unwrap();
-
-                        // Update the block metadata.
-                        block_metadata.update(
-                            block_height.clone(),
-                            leader_id == sequencer_id,
-                            leader_id,
-                        );
-                        block_metadata.commit().unwrap();
-                    }
-                    Err(error) => {
-                        if error.is_none_type() {
-                            // Store the sequencer set.
-                            let leader_id = sequencer_set.leader().unwrap();
-                            state
-                                .database()
-                                .put(&sequencer_set_key, &sequencer_set)
-                                .unwrap();
-
-                            // Store the block metadata.
-                            let block_metadata = BlockMetadata::new(
-                                block_height.clone(),
-                                leader_id == sequencer_id,
-                                leader_id,
-                            );
-                            state
-                                .database()
-                                .put(&block_metadata_key, &block_metadata)
-                                .unwrap();
-                        }
-                    }
+                if block_height.value() >= 3 {
+                    block_builder(
+                        state.clone(),
+                        rollup_id.clone(),
+                        block_height.clone() - 2,
+                        leader_id == sequencer_id,
+                    );
                 }
                 break;
             }
+
             sleep(Duration::from_millis(100)).await;
         }
     });
@@ -122,12 +86,18 @@ pub fn block_builder(
     state: AppState,
     rollup_id: RollupId,
     block_height: BlockHeight,
-    tx_count: TransactionOrder,
     is_leader: bool,
-    seed: [u8; 32],
 ) {
     tokio::spawn(async move {
-        let block: Vec<RawTransaction> = tx_count
+        let sequencer_set_key = ("sequencer_set", &rollup_id, &block_height);
+        let sequencer_set: SequencerSet = state.database().get(&sequencer_set_key).unwrap();
+
+        let block_metadata_key = ("block_metadata", &rollup_id, &block_height);
+        let block_metadata: Lock<BlockMetadata> =
+            state.database().get_mut(&block_metadata_key).unwrap();
+
+        let block: Vec<RawTransaction> = block_metadata
+            .tx_count()
             .iter()
             .map(|tx_order| {
                 let raw_tx: RawTransaction = state
@@ -142,7 +112,7 @@ pub fn block_builder(
             .put(&("block", &rollup_id, &block_height), &block)
             .unwrap();
 
-        let block_commitment = ssal_commitment::get_block_commitment(block, seed);
+        let block_commitment = ssal_commitment::get_block_commitment(block, sequencer_set.seed());
         state
             .database()
             .put(

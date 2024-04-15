@@ -4,6 +4,7 @@ use super::prelude::*;
 #[serde(crate = "ssal_core::serde")]
 pub struct SyncTransaction {
     rollup_id: RollupId,
+    block_height: BlockHeight,
     raw_tx: RawTransaction,
 }
 
@@ -12,14 +13,20 @@ impl SyncTransaction {
         State(state): State<AppState>,
         Json(payload): Json<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        let mut block_metadata: Lock<BlockMetadata> = state
-            .database()
-            .get_mut(&("block_metadata", &payload.rollup_id))?;
-        let block_height = block_metadata.block_height();
+        let mut block_metadata: Lock<BlockMetadata> = state.database().get_mut(&(
+            "block_metadata",
+            &payload.rollup_id,
+            &payload.block_height,
+        ))?;
         let tx_order = block_metadata.issue_tx_order();
 
         state.database().put(
-            &("raw_tx", &payload.rollup_id, &block_height, &tx_order),
+            &(
+                "raw_tx",
+                &payload.rollup_id,
+                &payload.block_height,
+                &tx_order,
+            ),
             &payload.raw_tx,
         )?;
 
