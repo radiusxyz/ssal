@@ -3,6 +3,7 @@ use std::{any, collections::HashMap, env};
 use ssal_core::{
     error::{Error, WrapError},
     reqwest::{Client, Url},
+    serde_json::json,
     tokio::{
         self,
         time::{sleep, Duration},
@@ -44,8 +45,9 @@ async fn register(ssal_base_url: &Url, rollup_id: &RollupId) -> Result<(), Error
         .join("register-rollup")
         .wrap("[RegisterRollup] Failed to parse into URL")?;
 
-    let mut payload: HashMap<&'static str, String> = HashMap::new();
-    payload.insert("rollup_id", rollup_id.to_string());
+    let payload = json!({
+        "rollup_id": rollup_id
+    });
 
     let response = Client::new()
         .post(url)
@@ -78,8 +80,9 @@ async fn close_block(
         .join("close-block")
         .wrap("[CloseBlock] Failed to parse into URL")?;
 
-    let mut payload = HashMap::<&'static str, String>::new();
-    payload.insert("rollup_id", rollup_id.to_string());
+    let payload = json!({
+        "rollup_id": rollup_id
+    });
 
     let response = Client::new()
         .post(url)

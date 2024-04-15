@@ -1,8 +1,9 @@
-use std::{any, collections::HashMap, str::FromStr, time::Duration};
+use std::{any, str::FromStr, time::Duration};
 
 use ssal_core::{
     error::{Error, WrapError},
     reqwest::{Client, StatusCode, Url},
+    serde_json::json,
     types::*,
 };
 
@@ -15,9 +16,10 @@ pub async fn register(
         .join("register-sequencer")
         .wrap("[RegisterSequencer] Failed to parse into URL")?;
 
-    let mut payload: HashMap<&'static str, String> = HashMap::new();
-    payload.insert("rollup_id", rollup_id.to_string());
-    payload.insert("sequencer_id", sequencer_id.to_string());
+    let payload = json!({
+        "rollup_id": rollup_id,
+        "sequencer_id": sequencer_id
+    });
 
     let response = Client::new()
         .post(url)
@@ -80,10 +82,11 @@ pub async fn forward_transaction(
         .join("/send-transaction")
         .wrap("[SendTransaction]: Failed to parse into URL (path)")?;
 
-    let mut payload: HashMap<&'static str, String> = HashMap::new();
-    payload.insert("rollup_id", rollup_id.to_string());
-    payload.insert("block_height", block_height.to_string());
-    payload.insert("raw_tx", raw_tx.to_string());
+    let payload = json!({
+        "rollup_id": rollup_id.to_string(),
+        "block_height": block_height.value(),
+        "raw_tx": raw_tx.to_string()
+    });
 
     let response = Client::new()
         .post(url)
@@ -117,9 +120,10 @@ pub async fn sync_transaction(
         .join("/sync-transaction")
         .wrap("[SyncTransaction]: Failed to parse into URL (path)")?;
 
-    let mut payload: HashMap<&'static str, String> = HashMap::new();
-    payload.insert("rollup_id", rollup_id.to_string());
-    payload.insert("raw_tx", raw_tx.to_string());
+    let payload = json!({
+        "rollup_id": rollup_id,
+        "raw_tx": raw_tx
+    });
 
     Client::new()
         .post(url)

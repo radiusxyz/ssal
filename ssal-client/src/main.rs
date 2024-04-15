@@ -1,8 +1,9 @@
-use std::{any, collections::HashMap, env, str::FromStr};
+use std::{any, env, str::FromStr};
 
 use ssal_core::{
     error::{Error, WrapError},
     reqwest::{Client, StatusCode, Url},
+    serde_json::json,
     tokio::{
         self,
         time::{sleep, Duration},
@@ -85,10 +86,11 @@ pub async fn send_transaction(
         .join("send-transaction")
         .wrap("[SendTransaction]: Failed to parse into URL (path)")?;
 
-    let mut payload: HashMap<&'static str, String> = HashMap::new();
-    payload.insert("rollup_id", rollup_id.to_string());
-    payload.insert("block_height", block_height.to_string());
-    payload.insert("raw_tx", raw_tx.to_string());
+    let payload = json!({
+        "rollup_id": rollup_id,
+        "block_height": block_height,
+        "raw_tx": raw_tx
+    });
 
     let response = Client::new()
         .post(url)

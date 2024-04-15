@@ -64,6 +64,10 @@ pub fn leader_poller(
                 let block_metadata_key = ("block_metadata", &rollup_id, &block_height);
                 let block_metadata = BlockMetadata::new(leader_id == sequencer_id);
                 database.put(&block_metadata_key, &block_metadata).unwrap();
+
+                if block_height.value() >= 2 {
+                    block_builder(state.clone(), rollup_id.clone(), block_height.clone() - 1);
+                }
                 break;
             }
 
@@ -72,49 +76,53 @@ pub fn leader_poller(
     });
 }
 
-pub fn block_builder(
-    state: AppState,
-    rollup_id: RollupId,
-    block_height: BlockHeight,
-    tx_count: TransactionOrder,
-    is_leader: bool,
-    seed: [u8; 32],
-) {
-    tokio::spawn(async move {
-        let block: Vec<RawTransaction> = tx_count
-            .iter()
-            .map(|tx_order| {
-                let raw_tx: RawTransaction = state
-                    .database()
-                    .get(&("raw_tx", &rollup_id, &block_height, &tx_order))
-                    .unwrap();
-                raw_tx
-            })
-            .collect();
-        state
-            .database()
-            .put(&("block", &rollup_id, &block_height), &block)
-            .unwrap();
-
-        let block_commitment = ssal_commitment::get_block_commitment(block, seed);
-        state
-            .database()
-            .put(
-                &("block_commitment", &rollup_id, &block_height),
-                &block_commitment,
-            )
-            .unwrap();
-
-        if is_leader {
-            send_block_commitment(state.client(), &rollup_id, &block_height, &block_commitment)
-                .await
-                .unwrap();
-
-            tracing::info!(
-                "[Leader]: Successfully sent block commitment to the contract for {:?}: {:?}",
-                rollup_id,
-                block_height,
-            );
-        }
-    });
+pub fn block_builder(state: AppState, rollup_id: RollupId, block_height: BlockHeight) {
+    tokio::spawn(async move {});
 }
+
+// pub fn block_builder(
+//     state: AppState,
+//     rollup_id: RollupId,
+//     block_height: BlockHeight,
+//     tx_count: TransactionOrder,
+//     is_leader: bool,
+//     seed: [u8; 32],
+// ) {
+//     tokio::spawn(async move {
+//         let block: Vec<RawTransaction> = tx_count
+//             .iter()
+//             .map(|tx_order| {
+//                 let raw_tx: RawTransaction = state
+//                     .database()
+//                     .get(&("raw_tx", &rollup_id, &block_height, &tx_order))
+//                     .unwrap();
+//                 raw_tx
+//             })
+//             .collect();
+//         state
+//             .database()
+//             .put(&("block", &rollup_id, &block_height), &block)
+//             .unwrap();
+
+//         let block_commitment = ssal_commitment::get_block_commitment(block, seed);
+//         state
+//             .database()
+//             .put(
+//                 &("block_commitment", &rollup_id, &block_height),
+//                 &block_commitment,
+//             )
+//             .unwrap();
+
+//         if is_leader {
+//             send_block_commitment(state.client(), &rollup_id, &block_height, &block_commitment)
+//                 .await
+//                 .unwrap();
+
+//             tracing::info!(
+//                 "[Leader]: Successfully sent block commitment to the contract for {:?}: {:?}",
+//                 rollup_id,
+//                 block_height,
+//             );
+//         }
+//     });
+// }
