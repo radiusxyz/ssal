@@ -116,17 +116,22 @@ After a successful run, a rollup will close the block every 5 seconds. However, 
 Now, let's move onto launching our sequencers and registering them at our rollups.
 
 #### 4. Launch a separate terminal and run `ssal-sequencer` 
-We will launch two sequencers for each rollup we have previously deployed.
+We will launch a new sequencer for rollups we have deployed. Currently, local deployment supports only 1 sequencer per node.
+In order to run multiple sequencers, please refer to [Network Deployment Guide](../docs/network_deployment.md).
+
+Change the sequencer configuration at `ssal/configs/ssal-sequencer.toml` with the editor of your preference
+By default the configs are as the following:
 ```
-# Usage:
-./target/release/ssal-sequencer "SSAL-URL" "ROLLUP-ID" "CHAIN-URL" "WALLET-PRIVATE-KEY"
+ssal_url = "http://127.0.0.1:3000"
+rollup_id = "1"
+chain_url = "http://127.0.0.1:8545"
+wallet_private_key = "Your Wallet Private Key"
+is_local_deployment = true
+```
 
-# Examples
-// Run the sequencer for Rollup ID = 1
-./target/release/ssal-sequencer http://127.0.0.1:3000 1 http://127.0.0.1:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
-
-// Run the sequencer for Rollup ID = 2
-./target/release/ssal-sequencer http://127.0.0.1:3000 2 http://127.0.0.1:8545 7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6
+Change the `wallet_private_key` to your private key and run the following command:
+```
+./target/release/ssal-sequencer
 ```
 
 After a successful launch, the following log will show up:
@@ -163,11 +168,11 @@ Query the block:
 "SEQUENCER-URL"/get-block?rollup_id="ROLLUP-ID"&block_height="BLOCK-HEIGHT"
 
 # Examples:
-// Get the block with height = 48 for Rollup ID = 1 from the sequencer listening to port 8001.
-http://127.0.0.1:8001/get-block?rollup_id=1&block_height=50
+// Get the block with height = 48 for Rollup ID = 1 from the sequencer.
+http://127.0.0.1:8000/get-block?rollup_id=1&block_height=50
 
-// Get the block with height = 96 for Rollup ID = 2 from the seqencer listening to port 8003.
-http://127.0.0.1:8003/get-block?rollup_id=2&block_height=96
+// Get the block with height = 96 for Rollup ID = 2 from the sequencer.
+http://127.0.0.1:8000/get-block?rollup_id=2&block_height=96
 ```
 
 Query the block commitment:
@@ -176,11 +181,11 @@ Query the block commitment:
 "SEQUENCER-URL"/get-block-commitment?rollup_id="ROLLUP-ID"&block_height="BLOCK-HEIGHT"
 
 # Examples:
-// Get the block commitment of the block with height = 50 for Rollup ID = 1 from the sequencer listening to port 8001.
-http://127.0.0.1:8001/get-block-commitment?rollup_id=1&block_height=50
+// Get the block commitment of the block with height = 50 for Rollup ID = 1 from the sequencer.
+http://127.0.0.1:8000/get-block-commitment?rollup_id=1&block_height=50
 
-// Get the block commitment of the block with height = 96 for Rollup ID = 2 from the sequencer listening to port 8003.
-http://127.0.0.1:8003/get-block-commitment?rollup_id=2&block_height=96
+// Get the block commitment of the block with height = 96 for Rollup ID = 2 from the sequencer.
+http://127.0.0.1:8000/get-block-commitment?rollup_id=2&block_height=96
 ```
 
 Query the sequencer set:
