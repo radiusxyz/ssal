@@ -22,7 +22,7 @@ go install github.com/maoueh/zap-pretty@latest
 
 4. Clone the SSAL repositories
 ```
-git clone --recursive https://github.com/radiusxyz/ssal
+git clone -b ssal-avs --recursive https://github.com/radiusxyz/ssal
 ```
 
 5. Build
