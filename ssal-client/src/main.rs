@@ -29,8 +29,10 @@ async fn main() -> Result<(), Error> {
         if let Some(mut sequencer_set) = get_sequencer_set(&ssal_url, &rollup_id).await? {
             // Using elect leader for a convenient random selection.
             let follower_id = sequencer_set.elect_leader()?;
+            let block_height = sequencer_set.block_height();
             let raw_tx = RawTransaction::from(raw_tx_count.to_string());
-            let order_commitment = send_transaction(follower_id, &rollup_id, raw_tx).await?;
+            let order_commitment =
+                send_transaction(follower_id, &rollup_id, &block_height, raw_tx).await?;
             tracing::info!("{:?}", order_commitment);
             raw_tx_count += 1;
         }
@@ -74,6 +76,7 @@ pub async fn get_sequencer_set(
 pub async fn send_transaction(
     sequencer_id: SequencerId,
     rollup_id: &RollupId,
+    block_height: &BlockHeight,
     raw_tx: RawTransaction,
 ) -> Result<Option<OrderCommitment>, Error> {
     let url = Url::from_str(sequencer_id.as_ref())
@@ -83,6 +86,7 @@ pub async fn send_transaction(
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
     payload.insert("rollup_id", rollup_id.to_string());
+    payload.insert("block_height", block_height.to_string());
     payload.insert("raw_tx", raw_tx.to_string());
 
     let response = Client::new()

@@ -177,6 +177,10 @@ impl SequencerSet {
         }
     }
 
+    pub fn block_height(&self) -> BlockHeight {
+        self.block_height.clone()
+    }
+
     pub fn register(&mut self, sequencer_id: SequencerId) -> Result<(), Error> {
         match self.set.insert(sequencer_id) {
             true => Ok(()),
@@ -312,39 +316,20 @@ impl<'a> Iterator for TxOrderIterator<'a> {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockMetadata {
-    block_height: BlockHeight,
     is_leader: bool,
-    leader_id: SequencerId,
     tx_order: TransactionOrder,
 }
 
 impl BlockMetadata {
-    pub fn new(block_height: BlockHeight, is_leader: bool, leader_id: SequencerId) -> Self {
+    pub fn new(is_leader: bool) -> Self {
         Self {
-            block_height,
             is_leader,
-            leader_id,
             tx_order: TransactionOrder::default(),
         }
     }
 
-    pub fn update(&mut self, block_height: BlockHeight, is_leader: bool, leader_id: SequencerId) {
-        self.block_height = block_height;
-        self.is_leader = is_leader;
-        self.leader_id = leader_id;
-        self.tx_order = TransactionOrder::default();
-    }
-
-    pub fn block_height(&self) -> BlockHeight {
-        self.block_height.clone()
-    }
-
     pub fn is_leader(&self) -> bool {
         self.is_leader
-    }
-
-    pub fn leader_id(&self) -> SequencerId {
-        self.leader_id.clone()
     }
 
     pub fn issue_tx_order(&mut self) -> TransactionOrder {

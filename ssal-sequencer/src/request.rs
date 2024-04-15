@@ -72,6 +72,7 @@ pub async fn get_closed_sequencer_set(
 pub async fn forward_transaction(
     leader_id: &SequencerId,
     rollup_id: &RollupId,
+    block_height: &BlockHeight,
     raw_tx: &RawTransaction,
 ) -> Result<OrderCommitment, Error> {
     let url = Url::from_str(leader_id.as_ref())
@@ -81,6 +82,7 @@ pub async fn forward_transaction(
 
     let mut payload: HashMap<&'static str, String> = HashMap::new();
     payload.insert("rollup_id", rollup_id.to_string());
+    payload.insert("block_height", block_height.to_string());
     payload.insert("raw_tx", raw_tx.to_string());
 
     let response = Client::new()
