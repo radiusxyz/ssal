@@ -14,6 +14,7 @@ impl SendTransaction {
         State(state): State<AppState>,
         Json(payload): Json<Self>,
     ) -> Result<impl IntoResponse, Error> {
+        tracing::info!("============SendTransaction::handler()================");
         let sequencer_set: SequencerSet =
             state
                 .database()
