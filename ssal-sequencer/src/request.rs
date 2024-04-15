@@ -113,6 +113,7 @@ pub async fn forward_transaction(
 pub async fn sync_transaction(
     follower_id: SequencerId,
     rollup_id: RollupId,
+    block_height: BlockHeight,
     raw_tx: RawTransaction,
 ) -> Result<(), Error> {
     let url = Url::from_str(follower_id.as_ref())
@@ -122,6 +123,7 @@ pub async fn sync_transaction(
 
     let payload = json!({
         "rollup_id": rollup_id,
+        "block_height": block_height,
         "raw_tx": raw_tx
     });
 

@@ -44,6 +44,7 @@ impl SendTransaction {
                         let handle = tokio::spawn(sync_transaction(
                             follower_id.clone(),
                             payload.rollup_id.clone(),
+                            payload.block_height.clone(),
                             payload.raw_tx.clone(),
                         ));
                         Some(handle)
