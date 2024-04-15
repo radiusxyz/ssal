@@ -54,7 +54,7 @@ impl SendTransaction {
             let quorum = handles.len();
             let mut acks: usize = 0;
             for handle in handles {
-                if let Err(error) = handle.await {
+                if let Err(error) = handle.await.unwrap() {
                     tracing::error!("{}", error);
                 } else {
                     acks += 1;

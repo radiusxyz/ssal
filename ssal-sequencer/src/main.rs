@@ -27,7 +27,6 @@ async fn main() -> Result<(), Error> {
     let config_path = env::current_dir()
         .wrap("Failed to get the current directory")?
         .join("configs/ssal-sequencer.toml");
-    tracing::info!("{:?}", config_path);
     let config = Config::from_path(config_path)?;
     let ssal_url: Url = config
         .ssal_url
@@ -57,7 +56,6 @@ async fn main() -> Result<(), Error> {
             SequencerId::from(&public_address)
         }
     };
-    tracing::info!("Sequencer ID: {}", sequencer_id);
 
     // Initialize the database.
     let database_path = env::current_dir()
