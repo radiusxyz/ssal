@@ -61,7 +61,7 @@ pub fn leader_poller(
                 database.put(&sequencer_set_key, &sequencer_set).unwrap();
 
                 // Store the block metadata.
-                let block_metadata_key = ("block_metadata", &rollup_id);
+                let block_metadata_key = ("block_metadata", &rollup_id, &block_height);
                 let block_metadata = BlockMetadata::new(leader_id == sequencer_id);
                 database.put(&block_metadata_key, &block_metadata).unwrap();
                 break;
