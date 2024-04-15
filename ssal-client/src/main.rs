@@ -27,6 +27,7 @@ async fn main() -> Result<(), Error> {
     let mut raw_tx_count = 0;
     loop {
         if let Some(mut sequencer_set) = get_sequencer_set(&ssal_url, &rollup_id).await? {
+            tracing::info!("=============================================");
             // Using elect leader for a convenient random selection.
             let follower_id = sequencer_set.elect_leader()?;
             let block_height = sequencer_set.block_height();

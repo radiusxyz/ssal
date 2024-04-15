@@ -14,7 +14,6 @@ impl SendTransaction {
         State(state): State<AppState>,
         Json(payload): Json<Self>,
     ) -> Result<impl IntoResponse, Error> {
-        tracing::info!("============SendTransaction::handler()================");
         let sequencer_set: SequencerSet =
             state
                 .database()
@@ -96,7 +95,6 @@ impl SendTransaction {
                 &payload.raw_tx,
             )
             .await?;
-
             Ok((StatusCode::OK, Json(order_commitment)))
         }
     }
