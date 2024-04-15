@@ -25,7 +25,7 @@ go install github.com/maoueh/zap-pretty@latest
 
 4. Clone the SSAL repositories
 ```
-git clone --recursive https://github.com/radiusxyz/ssal
+git clone -b ssal-avs --recursive https://github.com/radiusxyz/ssal
 ```
 
 5. Build
@@ -73,29 +73,27 @@ make start-operator
 ```
 
 #### 2. Run the sequencer
-On a separate terminal, we will launch the sequencer for rollups that have already been deployed.
-Currently, there are 3 rollups whose IDs are "1", "2" and "3" respectively.
-
-Change the directory to `/ssal` and run one of the following examples:
+Change the sequencer configuration at `ssal/configs/ssal-sequencer.toml` with the editor of your preference
+By default the configs are as the following:
 ```
-# Usage:
-./target/release/ssal-sequencer "SEQUENCER-ADDRESS" "ROLLUP-ID" "SSAL-URL" "CHAIN-URL" "WALLET-PRIVATE-KEY"
+ssal_url = "http://127.0.0.1:3000"
+rollup_id = "1"
+chain_url = "http://127.0.0.1:8545"
+wallet_private_key = "Your Wallet Private Key"
+is_local_deployment = true
+```
 
-# Examples
-// Run the sequencer for Rollup ID = 1
-./target/release/ssal-sequencer http://3.38.183.158:3000 1 http://3.38.183.158:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
-
-// Run the sequencer for Rollup ID = 2
-./target/release/ssal-sequencer http://3.38.183.158:3000 2 http://3.38.183.158:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
-
-// Run the sequencer for Rollup ID = 3
-./target/release/ssal-sequencer http://3.38.183.158:3000 3 http://3.38.183.158:8545 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+Change the `is_local_deployment` field to false and run the following command:
+```
+./target/release/ssal-sequencer
 ```
 
 After a successful launch, the following log will show up:
 ```
 INFO ssal_sequencer::task: [RegisterSequencer]: Successfully registered for RollupId("1"): BlockHeight(192)
 ```
+
+At this point, our sequencers are successfully registered at each rollup's sequencer pool and randomly become a leader to build a block. Because we are not sending any transaction to the sequencer, the block is empty now. Let's move onto launching test clients to send transactions to be included in our rollups.
 
 #### 3. Run the client
 Now we can run the test-client to send transactions to rollups.
